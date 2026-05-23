@@ -278,7 +278,7 @@
         <dependency>
             <groupId>dev.sefiraat</groupId>
             <artifactId>SefiLib</artifactId>
-            <version>0.2.6</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -286,7 +286,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.0</version>
+            <version>3.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -297,7 +297,7 @@
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>1.0.7</version>
+            <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
