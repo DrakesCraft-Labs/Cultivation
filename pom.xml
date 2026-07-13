@@ -54,10 +54,6 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.sefiraat.cultivation.bstats</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>io.github.bakedlibs.dough</pattern>
                             <shadedPattern>dev.sefiraat.cultivation.dough</shadedPattern>
                         </relocation>
@@ -286,13 +282,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Tools etc. -->
-        <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>3.2.1</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
