@@ -160,6 +160,10 @@
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
+            <id>drakescraft-labs-maven</id>
+            <url>https://drakescraft-labs.github.io/maven-repo/</url>
+        </repository>
+        <repository>
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
@@ -260,13 +264,13 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.6-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.Slimefun</groupId>
-            <artifactId>Slimefun4</artifactId>
-            <version>RC-37</version>
+            <groupId>com.github.drakescraft_labs</groupId>
+            <artifactId>slimefun-core</artifactId>
+            <version>11.0-Drake-1.21.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -276,9 +280,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>dev.sefiraat</groupId>
-            <artifactId>SefiLib</artifactId>
-            <version>0.3.0</version>
+            <groupId>com.github.drakescraft_labs</groupId>
+            <artifactId>sefilib-drake</artifactId>
+            <version>0.3.1-DRAKE-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

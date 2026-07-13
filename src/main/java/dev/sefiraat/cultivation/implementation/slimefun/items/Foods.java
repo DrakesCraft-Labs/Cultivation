@@ -4,11 +4,11 @@ import dev.sefiraat.cultivation.Cultivation;
 import dev.sefiraat.cultivation.api.slimefun.RecipeTypes;
 import dev.sefiraat.cultivation.api.slimefun.items.produce.Food;
 import dev.sefiraat.cultivation.implementation.slimefun.CultivationStacks;
-import dev.sefiraat.sefilib.misc.Chance;
-import dev.sefiraat.sefilib.misc.ParticleUtils;
-import dev.sefiraat.sefilib.world.LocationUtils;
+import dev.drake.sefilib.misc.Chance;
+import dev.drake.sefilib.misc.ParticleUtils;
+import dev.drake.sefilib.world.LocationUtils;
 import io.github.bakedlibs.dough.collections.Pair;
-import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import com.github.drakescraft_labs.slimefun4.implementation.SlimefunItems;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -787,7 +787,7 @@ public final class Foods {
     }
 
     private static void simplePlayerEffect(@Nonnull Player player, int healing) {
-        AttributeInstance health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance health = player.getAttribute(Attribute.MAX_HEALTH);
         if (health == null) {
             return;
         }
