@@ -16,8 +16,6 @@ import dev.sefiraat.cultivation.managers.SupportedPluginManager;
 import dev.sefiraat.cultivation.managers.TaskManager;
 import dev.drake.sefilib.entity.display.DisplayGroupManager;
 import com.github.drakescraft_labs.slimefun4.api.SlimefunAddon;
-import com.github.drakescraft_labs.slimefun4.libraries.dough.updater.GitHubBuildsUpdater;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -56,7 +54,6 @@ public class Cultivation extends JavaPlugin implements SlimefunAddon {
 
         saveDefaultConfig();
         this.configManager = new ConfigManager();
-        tryUpdate();
 
         this.supportedPluginManager = new SupportedPluginManager();
         this.listenerManager = new ListenerManager();
@@ -66,7 +63,6 @@ public class Cultivation extends JavaPlugin implements SlimefunAddon {
         this.registry = new Registry();
 
         setupItems();
-        setupStats();
     }
 
     private void setupItems() {
@@ -86,14 +82,6 @@ public class Cultivation extends JavaPlugin implements SlimefunAddon {
         this.configManager.saveAll();
     }
 
-    public void tryUpdate() {
-        if (configManager.isAutoUpdate() && getDescription().getVersion().startsWith("DEV")) {
-            String updateLocation = MessageFormat.format("{0}/{1}/{2}", this.username, this.repo, this.branch);
-            GitHubBuildsUpdater updater = new GitHubBuildsUpdater(this, getFile(), updateLocation);
-            updater.start();
-        }
-    }
-
     @Nonnull
     @Override
     public JavaPlugin getJavaPlugin() {
@@ -104,10 +92,6 @@ public class Cultivation extends JavaPlugin implements SlimefunAddon {
     @Override
     public String getBugTrackerURL() {
         return MessageFormat.format("https://github.com/{0}/{1}/issues/", this.username, this.repo);
-    }
-
-    private void setupStats() {
-        Metrics metrics = new Metrics(this, 18184);
     }
 
     public static Cultivation getInstance() {
