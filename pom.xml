@@ -73,6 +73,12 @@
                                 <exclude>META-INF/*</exclude>
                             </excludes>
                         </filter>
+                        <filter>
+                            <artifact>com.github.baked-libs.dough:dough-api</artifact>
+                            <excludes>
+                                <exclude>io/github/bakedlibs/dough/skins/**</exclude>
+                            </excludes>
+                        </filter>
                     </filters>
                 </configuration>
                 <executions>

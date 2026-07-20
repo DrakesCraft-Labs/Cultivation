@@ -23,4 +23,19 @@ jobs:
           java-version: 21
           cache: 'maven'
       - name: Build with Maven
-        run: mvn package --file pom.xml
+        run: mvn --batch-mode --no-transfer-progress clean verify --file pom.xml
+      - name: Validar compatibilidad de perfiles 1.21.11
+        shell: bash
+        run: |
+          JAR="$(find target -maxdepth 1 -type f -name 'Cultivation*.jar' ! -name 'original-*' | head -n 1)"
+          test -n "$JAR"
+          jar tf "$JAR" | grep -q '^dev/sefiraat/cultivation/Cultivation.class$'
+          ! jar tf "$JAR" | grep -q 'dough/skins/CustomGameProfile.class'
+      - name: Publicar JAR validado
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cultivation-${{ github.sha }}
+          path: target/Cultivation*.jar
+          if-no-files-found: error
+          retention-days: 14

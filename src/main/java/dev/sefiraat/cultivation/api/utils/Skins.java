@@ -1,6 +1,5 @@
 package dev.sefiraat.cultivation.api.utils;
 
-import io.github.bakedlibs.dough.skins.PlayerSkin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -568,12 +567,8 @@ public enum Skins {
 
     @Nonnull
     private final String hash;
-    @Nonnull
-    private final PlayerSkin playerSkin;
-
     Skins(@Nonnull String hash) {
         this.hash = hash;
-        this.playerSkin = PlayerSkin.fromHashCode(hash);
     }
 
     @Nonnull
@@ -598,11 +593,6 @@ public enum Skins {
             skull.setItemMeta(meta);
         }
         return skull;
-    }
-
-    @Nonnull
-    public PlayerSkin getPlayerSkin() {
-        return playerSkin;
     }
 
     @Nonnull
