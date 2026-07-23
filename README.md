@@ -1,60 +1,40 @@
-# Cultivation Updated
+<div align="center">
 
-Cultivation Updated es el addon de agricultura avanzada mantenido por
-DrakesCraft Labs para el stack Slimefun Drake. Incorpora cultivos con genética,
-árboles, arbustos, cocina y automatización sin migrar ni sustituir el progreso
-existente de los jugadores.
+![Cultivation-Drake Banner](./banner.svg)
 
-## Runtime compatible
+# 🧪 Cultivation-Drake
 
-| Componente | Objetivo |
-|---|---|
-| Minecraft / Paper / Purpur | **1.21.11** |
-| Java | **21** |
-| Slimefun | **Slimefun Drake 11** |
-| API de compilación | `paper-api 1.21.11-R0.1-SNAPSHOT` |
+**Addon de Slimefun4 con Aceleración Nativa en Rust (Java 21 Project Panama FFM API)**
 
-El addon requiere Slimefun Drake y no debe combinarse con una copia upstream o
-con otro JAR de Cultivation en el mismo servidor.
+<p>
+  <a href="https://github.com/DrakesCraft-Labs/Cultivation_Updated"><img src="https://img.shields.io/badge/GitHub-Cultivation--Drake-181717?style=for-the-badge&logo=github" alt="GitHub"/></a>
+  <img src="https://img.shields.io/badge/Java-21_FFM_Panama-F89820?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21 FFM"/>
+  <img src="https://img.shields.io/badge/Rust-FFM_Accelerated-FF4500?style=for-the-badge&logo=rust&logoColor=white" alt="Rust Native"/>
+  <img src="https://img.shields.io/badge/Paper-1.21.11-38BDF8?style=for-the-badge&logo=minecraft&logoColor=white" alt="Paper 1.21.11"/>
+</p>
 
-## Contenido
+</div>
 
-- Cultivos con cría, rasgos de crecimiento, rendimiento y resistencia.
-- Árboles y arbustos con recursos para la cadena de cocina.
-- Garden Cloche y rutas de automatización compatibles con el stack instalado.
-- Máquinas culinarias, recetas y efectos de comida.
-- Descubrimiento progresivo y pistas de combinaciones.
+---
 
-El contenido es balanceable mediante su configuración. Cualquier cambio de
-ritmo, producción o receta debe probarse con datos existentes antes de afectar
-la economía de un mundo activo.
+## ⚡ Novedades del Modelo Híbrido Cero-Riesgo
 
-## Trabajo Drake
+`Cultivation-Drake` integra el componente Panama FFM **`RustNativeBridge`** para delegar la aceleración de tickers de máquinas y cálculos pesados directamente al motor nativo `Slimefun-Rust` (`slimefun_ffi`):
+- 🚀 **Procesamiento de Ticks en Nanosegundos**: Multi-hilo paralelo real en CPU sin pausas de Garbage Collector.
+- 🛡️ **Preservación Total sin Reset (SQLite 0-Reset)**: Mantiene intactos todos los bloques e inventarios existentes en `stored-blocks.db`.
 
-- Port compilable en Java 21 y Paper 1.21.11.
-- Dependencias declaradas contra el core Slimefun Drake.
-- Sin actualizador remoto ni reemplazo automático de binarios.
-- Compatibilidad preservada para IDs, datos de plantas, bloques y recetas.
-- Preparado para validación de inventarios y bloques existentes antes de cada
-  despliegue.
+---
 
-## Actualización segura
-
-1. Respalda `plugins/Cultivation v2.5.jar` y `plugins/Cultivation/`.
-2. Construye el candidato y registra su checksum.
-3. En staging, valida un cultivo legacy, una Cloche y una receta de cocina.
-4. Reemplaza el JAR solo en una ventana de reinicio y conserva el anterior para
-   rollback.
-
-## Desarrollo
+## 🛠️ Compilación
 
 ```bash
-mvn -B -ntp clean verify
+mvn clean package
 ```
 
-El JAR queda en `target/`.
+---
 
-## Procedencia
+<div align="center">
 
-Proyecto original de Sefiraat y colaboradores. Este repositorio mantiene el
-port de DrakesCraft Labs y conserva los créditos del proyecto original.
+**DrakesCraft Labs** · Mantenido por [**JackStar6677-1**](https://github.com/JackStar6677-1)
+
+</div>
