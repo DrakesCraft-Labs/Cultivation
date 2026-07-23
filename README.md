@@ -1,6 +1,6 @@
 <div align="center">
 
-![Cultivation-Drake Banner](./banner.svg)
+  <img src="https://raw.githubusercontent.com/DrakesCraft-Labs/Cultivation_Updated/main/banner.svg" alt="Cultivation_Updated Banner" width="920" />
 
 # 🧪 Cultivation-Drake
 
