@@ -228,6 +228,14 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
 
     @ParametersAreNonnullByDefault
     private void trySetChildSeed(Location motherLocation, Block cloneBlock, CultivationPlant childSeed) {
+        // Breeding data may reference an orphaned plant after an addon reload or a
+        // removed registry entry. Abort this reproduction instead of breaking the
+        // block interaction event with a NullPointerException.
+        if (motherLocation == null || cloneBlock == null || childSeed == null || childSeed.growth == null) {
+            org.bukkit.Bukkit.getLogger().warning("[Cultivation] Omitida reproducción con datos incompletos");
+            return;
+        }
+
         PlantTheme theme = childSeed.growth.getTheme();
 
         if (theme == null) {
@@ -235,6 +243,11 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
         }
 
         UUID owner = getOwner(motherLocation);
+        if (owner == null) {
+            org.bukkit.Bukkit.getLogger().warning("[Cultivation] Omitida reproducción sin propietario: "
+                    + motherLocation);
+            return;
+        }
 
         cloneBlock.setType(Material.PLAYER_HEAD);
 
