@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.6.0
         with:
           distribution: 'temurin'
           java-version: 21
@@ -33,7 +33,7 @@ jobs:
           ! jar tf "$JAR" | grep -q 'dough/skins/CustomGameProfile.class'
       - name: Publicar JAR validado
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Cultivation-${{ github.sha }}
           path: target/Cultivation*.jar
