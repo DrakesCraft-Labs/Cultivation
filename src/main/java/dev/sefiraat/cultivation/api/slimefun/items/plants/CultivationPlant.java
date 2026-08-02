@@ -62,8 +62,8 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
         implements CultivationFlora, CultivationLevelProfileHolder, CultivationCroppable, CultivationPlantHolder,
         DisplayInteractable {
 
-    private static final long INVALID_BREED_NOTICE_COOLDOWN_MILLIS = 30_000L;
-    private static final ConcurrentHashMap<UUID, Long> INVALID_BREED_NOTICE_AT = new ConcurrentHashMap<>();
+    private static final long INVALID_BREED_NOTICE_COOLDOWN_MILLIS = 300_000L;
+    private static final ConcurrentHashMap<InvalidBreedNoticeKey, Long> INVALID_BREED_NOTICE_AT = new ConcurrentHashMap<>();
 
     @Nonnull
     public static final Set<BlockFace> BREEDING_DIRECTIONS = Set.of(
@@ -199,11 +199,11 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
 
         switch (result.getResultType()) {
             case NO_PAIRS ->
-                // No matching breeding pairs, lets feedback to the player then move to the next
-                // direction. The cooldown prevents a mature cross-crop from flooding its owner.
             {
-                breedInvalidDisplay(middleBlock.getLocation());
-                notifyInvalidBreed(mother, mate, motherBlock.getLocation());
+                // A mature pair is retried often. Notify its owner once per pair, not every growth tick.
+                if (notifyInvalidBreed(mother, mate, motherBlock.getLocation())) {
+                    breedInvalidDisplay(middleBlock.getLocation());
+                }
             }
             case SUCCESS -> {
                 // Breed was a success - spawn child, log discovery
@@ -238,27 +238,35 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     /**
      * Explains black particles without exposing recipe internals or repeatedly spamming the owner.
      */
-    private void notifyInvalidBreed(@Nonnull CultivationPlant mother,
+    private boolean notifyInvalidBreed(@Nonnull CultivationPlant mother,
             @Nonnull CultivationPlant mate,
             @Nonnull Location ownerLocation) {
         UUID owner = getOwner(ownerLocation);
         if (owner == null) {
-            return;
+            return false;
         }
 
+        String first = mother.getId().compareTo(mate.getId()) <= 0 ? mother.getId() : mate.getId();
+        String second = first.equals(mother.getId()) ? mate.getId() : mother.getId();
+        InvalidBreedNoticeKey key = new InvalidBreedNoticeKey(owner, first, second);
         long now = System.currentTimeMillis();
-        Long previousNotice = INVALID_BREED_NOTICE_AT.put(owner, now);
+        Long previousNotice = INVALID_BREED_NOTICE_AT.put(key, now);
         if (previousNotice != null && now - previousNotice < INVALID_BREED_NOTICE_COOLDOWN_MILLIS) {
-            INVALID_BREED_NOTICE_AT.put(owner, previousNotice);
-            return;
+            INVALID_BREED_NOTICE_AT.put(key, previousNotice);
+            return false;
         }
 
         Player player = Bukkit.getPlayer(owner);
         if (player != null && player.isOnline()) {
-            player.sendMessage(Theme.WARNING.apply(
-                    "Cruce invalido: " + mother.getItemName() + " + " + mate.getItemName()
-                            + " no tiene una receta registrada. No esta prohibido; revisa el Diccionario de cruces."));
+            player.sendActionBar(Theme.WARNING.apply(
+                    "Sin receta: " + mother.getItemName() + " + " + mate.getItemName() + ". Revisa el Diccionario de Cruces."));
+            return true;
         }
+        return false;
+    }
+
+    /** Separates repeated invalid pairs without suppressing feedback for a different experiment. */
+    private record InvalidBreedNoticeKey(UUID owner, String firstPlantId, String secondPlantId) {
     }
 
     @ParametersAreNonnullByDefault
