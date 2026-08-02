@@ -1,10 +1,13 @@
 package dev.sefiraat.cultivation.implementation.listeners;
 
+import dev.sefiraat.cultivation.Cultivation;
 import dev.sefiraat.cultivation.api.interfaces.CustomPlacementBlock;
 import dev.sefiraat.cultivation.api.slimefun.items.bushes.CultivationBush;
 import dev.sefiraat.cultivation.api.slimefun.items.plants.CultivationPlant;
+import dev.drake.sefilib.entity.display.DisplayGroup;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -87,6 +91,43 @@ public class CustomPlacementListener implements Listener {
     public void onSnowmanBlockForm(@Nonnull EntityBlockFormEvent event) {
         Location location = event.getBlock().getLocation();
         unsafelyKillItem(location, BlockStorage.check(location));
+    }
+
+    /**
+     * Plants are represented by a player head plus display entities. Breaking the supporting
+     * block bypasses Slimefun's normal break handler, so remove the captured displays once
+     * Minecraft has resolved the physics update instead of leaving an untouchable ghost plant.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlantPhysics(@Nonnull BlockPhysicsEvent event) {
+        Block block = event.getBlock();
+        SlimefunItem slimefunItem = BlockStorage.check(block);
+        if (!(slimefunItem instanceof CultivationPlant plant)) {
+            return;
+        }
+        if (block.getRelative(BlockFace.DOWN).getType().isSolid()) {
+            return;
+        }
+
+        Location location = block.getLocation();
+        DisplayGroup plantDisplay = plant.getPlantDisplayGroup(location);
+        DisplayGroup cropDisplay = plant.getCropDisplayGroup(location);
+
+        Bukkit.getScheduler().runTask(Cultivation.getInstance(), () -> {
+            if (BlockStorage.check(location) instanceof CultivationPlant) {
+                return;
+            }
+
+            if (plantDisplay != null) {
+                plantDisplay.remove();
+            }
+            if (cropDisplay != null) {
+                cropDisplay.remove();
+            }
+            if (BlockStorage.check(location) == null) {
+                BlockStorage.clearBlockInfo(location);
+            }
+        });
     }
 
     @EventHandler
