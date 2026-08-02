@@ -30,6 +30,7 @@ import com.github.drakescraft_labs.slimefun4.core.handlers.BlockBreakHandler;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
 import org.bukkit.Color;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -39,6 +40,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -50,6 +52,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to define a CultivationPlant that will grow as a
@@ -58,6 +61,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class CultivationPlant extends CultivationFloraItem<CultivationPlant>
         implements CultivationFlora, CultivationLevelProfileHolder, CultivationCroppable, CultivationPlantHolder,
         DisplayInteractable {
+
+    private static final long INVALID_BREED_NOTICE_COOLDOWN_MILLIS = 30_000L;
+    private static final ConcurrentHashMap<UUID, Long> INVALID_BREED_NOTICE_AT = new ConcurrentHashMap<>();
 
     @Nonnull
     public static final Set<BlockFace> BREEDING_DIRECTIONS = Set.of(
@@ -194,8 +200,11 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
         switch (result.getResultType()) {
             case NO_PAIRS ->
                 // No matching breeding pairs, lets feedback to the player then move to the next
-                // direction
+                // direction. The cooldown prevents a mature cross-crop from flooding its owner.
+            {
                 breedInvalidDisplay(middleBlock.getLocation());
+                notifyInvalidBreed(mother, mate, motherBlock.getLocation());
+            }
             case SUCCESS -> {
                 // Breed was a success - spawn child, log discovery
                 CultivationPlant child = result.getMatchedPair().getChild();
@@ -224,6 +233,32 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
                 0.5,
                 2,
                 new Particle.DustOptions(Color.BLACK, 1));
+    }
+
+    /**
+     * Explains black particles without exposing recipe internals or repeatedly spamming the owner.
+     */
+    private void notifyInvalidBreed(@Nonnull CultivationPlant mother,
+            @Nonnull CultivationPlant mate,
+            @Nonnull Location ownerLocation) {
+        UUID owner = getOwner(ownerLocation);
+        if (owner == null) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        Long previousNotice = INVALID_BREED_NOTICE_AT.put(owner, now);
+        if (previousNotice != null && now - previousNotice < INVALID_BREED_NOTICE_COOLDOWN_MILLIS) {
+            INVALID_BREED_NOTICE_AT.put(owner, previousNotice);
+            return;
+        }
+
+        Player player = Bukkit.getPlayer(owner);
+        if (player != null && player.isOnline()) {
+            player.sendMessage(Theme.WARNING.apply(
+                    "Cruce invalido: " + mother.getItemName() + " + " + mate.getItemName()
+                            + " no tiene una receta registrada. No esta prohibido; revisa el Diccionario de cruces."));
+        }
     }
 
     @ParametersAreNonnullByDefault
