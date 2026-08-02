@@ -71,17 +71,17 @@ public class PlantCodexFlexGroup extends FlexItemGroup {
 
     private static final ItemStack MOTHER_INFO = new CustomItemStack(
         Material.LIGHT_BLUE_STAINED_GLASS_PANE,
-        Theme.PASSIVE + "'Mother' Plant"
+        Theme.PASSIVE + "Planta A"
     );
 
     private static final ItemStack FATHER_INFO = new CustomItemStack(
         Material.LIGHT_BLUE_STAINED_GLASS_PANE,
-        Theme.PASSIVE + "'Father' Plant"
+        Theme.PASSIVE + "Planta B"
     );
 
     private static final ItemStack CHILD_INFO = new CustomItemStack(
         Material.LIGHT_BLUE_STAINED_GLASS_PANE,
-        Theme.PASSIVE + "'Child' Plant"
+        Theme.PASSIVE + "Resultado del cruce"
     );
 
     private static final ItemStack HELD_SLOT = new CustomItemStack(
@@ -104,7 +104,7 @@ public class PlantCodexFlexGroup extends FlexItemGroup {
     @Override
     @ParametersAreNonnullByDefault
     public void open(Player p, PlayerProfile profile, SlimefunGuideMode mode) {
-        ChestMenu chestMenu = new ChestMenu(CultivationThemes.MAIN.getColor() + "Plant Codex");
+        ChestMenu chestMenu = new ChestMenu(CultivationThemes.MAIN.getColor() + "Diccionario de Cruces");
 
         for (int slot : HEADER) {
             chestMenu.addItem(slot, ChestMenuUtils.getBackground(), (player1, i1, itemStack, clickAction) -> false);
@@ -288,9 +288,9 @@ public class PlantCodexFlexGroup extends FlexItemGroup {
             CultivationThemes.DISCOVEREY,
             seed.getItemName(),
             List.of(
-                Theme.ERROR + "Not Discovered",
-                "You have not yet discovered how",
-                "to breed this plant!"
+                Theme.ERROR + "Cruce sin descubrir",
+                "Aun no has descubierto como",
+                "obtener esta planta."
             )
         );
     }
@@ -299,7 +299,7 @@ public class PlantCodexFlexGroup extends FlexItemGroup {
     public static ItemStack getGrowthRate(@Nonnull CultivationPlant seed) {
         return new CustomItemStack(
             Material.WHEAT_SEEDS,
-            Theme.CLICK_INFO.asTitle("Growth Rate", FORMAT.format(seed.getDefaultGrowthRate()))
+            Theme.CLICK_INFO.asTitle("Velocidad de crecimiento", FORMAT.format(seed.getDefaultGrowthRate()))
         );
     }
 }

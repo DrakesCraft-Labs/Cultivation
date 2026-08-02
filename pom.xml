@@ -9,39 +9,41 @@
     <version>2.5</version>
 
     <name>Cultivation</name>
-    <description>A Slimefun Addon that adds a plethora of Magical and non-magical flora.</description>
-    <url>https://github.com/Sefiraat/Cultivation</url>
+    <description>Addon de flora y cruces de Slimefun mantenido por DrakesCraft Labs.</description>
+    <url>https://github.com/DrakesCraft-Labs/Cultivation_Updated</url>
 
     <licenses>
         <license>
             <name>GPL-3.0 license</name>
-            <url>https://github.com/Sefiraat/SefiLib/blob/master/LICENSE</url>
+            <url>https://github.com/DrakesCraft-Labs/Cultivation_Updated/blob/main/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <developers>
         <developer>
+            <name>JackStar6677</name>
+            <organization>DrakesCraft Labs</organization>
+            <organizationUrl>https://github.com/DrakesCraft-Labs</organizationUrl>
+        </developer>
+        <developer>
             <name>Sefiraat</name>
-            <organization>Sefiraat</organization>
-            <organizationUrl>https://www.sefiraat.dev</organizationUrl>
+            <organization>Autor original</organization>
         </developer>
         <developer>
             <name>J3fftw</name>
             <organization>J3fftw</organization>
-            <organizationUrl>https://j3fftw.dev</organizationUrl>
         </developer>
         <developer>
             <name>JustAHuman</name>
             <organization>JustAHuman</organization>
-            <organizationUrl>https://github.com/JustAHuman-xD</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/sefiraat/cultivation.git</connection>
-        <developerConnection>scm:git:ssh://github.com:sefiraat/cultivation.git</developerConnection>
-        <url>https://github.com/sefiraat/Cultivation/tree/master</url>
+        <connection>scm:git:git://github.com/DrakesCraft-Labs/Cultivation_Updated.git</connection>
+        <developerConnection>scm:git:ssh://github.com:DrakesCraft-Labs/Cultivation_Updated.git</developerConnection>
+        <url>https://github.com/DrakesCraft-Labs/Cultivation_Updated</url>
     </scm>
 
     <build>
@@ -119,10 +121,6 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.projectKey>Cultivation</sonar.projectKey>
-        <sonar.organization>sefiraat</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
         <sonar.issue.ignore.multicriteria>e1,e2,e3,e4</sonar.issue.ignore.multicriteria>
         <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S6212</sonar.issue.ignore.multicriteria.e1.ruleKey>
         <sonar.issue.ignore.multicriteria.e1.resourceKey>**</sonar.issue.ignore.multicriteria.e1.resourceKey>

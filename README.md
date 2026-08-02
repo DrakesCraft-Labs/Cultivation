@@ -31,6 +31,21 @@
 mvn clean package
 ```
 
+## 🌱 Guía de cruces
+
+La referencia operativa es el **Diccionario de Cruces** de la guía de Slimefun:
+lee las recetas cargadas por esta versión del servidor y evita que una tabla web
+desactualizada entregue combinaciones inválidas.
+
+La guía de soporte y desarrollo está en
+[docs/GUIA_DE_CRUCES_DRAKESCRAFT.md](docs/GUIA_DE_CRUCES_DRAKESCRAFT.md).
+
+## 📜 Procedencia
+
+Este es un fork mantenido por DrakesCraft Labs. Conserva la licencia GPL-3.0 y
+los avisos de autoría originales requeridos, mientras que la operación, soporte
+y documentación se gestionan desde este repositorio.
+
 ---
 
 <div align="center">

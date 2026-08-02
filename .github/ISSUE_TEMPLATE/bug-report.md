@@ -20,8 +20,8 @@ labels: bug assignees: ''
 
 ## Server Log / Error Report
 
-<!-- Take a look at your Server Log and please provide any error reports you can find via https://pastebin.com/ -->
-<!-- We may discard your Issue if you just post it here, as it's unreadable for us. Please use Pastebin! -->
+<!-- Adjunta el fragmento relevante del log como archivo o bloque de codigo. -->
+<!-- No publiques credenciales, tokens, IPs privadas ni datos personales. -->
 
 ## Environment (Required)
 

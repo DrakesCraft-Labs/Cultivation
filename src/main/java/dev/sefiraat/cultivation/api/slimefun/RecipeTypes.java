@@ -117,7 +117,7 @@ public final class RecipeTypes {
                 "",
                 "Las particulas negras indican que",
                 "esa pareja no tiene una receta registrada.",
-                "No es una prohibicion: revisa Plant Codex."
+                "No es una prohibicion: revisa el Diccionario de Cruces."
             )
         )
     );
