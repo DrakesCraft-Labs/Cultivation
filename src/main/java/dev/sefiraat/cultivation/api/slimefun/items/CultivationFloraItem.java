@@ -1,6 +1,5 @@
 package dev.sefiraat.cultivation.api.slimefun.items;
 
-import com.google.common.base.Preconditions;
 import dev.sefiraat.cultivation.api.events.CultivationBushGrowEvent;
 import dev.sefiraat.cultivation.api.events.CultivationGrowEvent;
 import dev.sefiraat.cultivation.api.events.CultivationPlantGrowEvent;
@@ -211,8 +210,24 @@ public abstract class CultivationFloraItem<T extends CultivationFloraItem<T>> ex
     @Nonnull
     public UUID getOwner(@Nonnull Location location) {
         UUID uuid = ownerCache.get(location);
-        // Owner cannot be null if called correctly
-        Preconditions.checkNotNull(uuid, "Owner is null, has this been called correctly");
+        if (uuid != null) {
+            return uuid;
+        }
+
+        // The cache is empty after a restart, while Slimefun retains the owner in block data.
+        // Recover it lazily so mature plants keep ticking instead of being terminated.
+        String storedOwner = BlockStorage.getLocationInfo(location, Keys.FLORA_OWNER);
+        if (storedOwner == null) {
+            throw new IllegalStateException("Cultivation flora is missing its owner at " + location);
+        }
+
+        try {
+            uuid = UUID.fromString(storedOwner);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalStateException("Cultivation flora has an invalid owner at " + location, exception);
+        }
+
+        ownerCache.put(location, uuid);
         return uuid;
     }
 

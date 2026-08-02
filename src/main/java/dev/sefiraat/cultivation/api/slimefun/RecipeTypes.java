@@ -115,8 +115,9 @@ public final class RecipeTypes {
                 "The breeding dictionary can be used",
                 "to track your discoveries.",
                 "",
-                "Hint: Black particles mean the",
-                "two plants CANNOT breed."
+                "Las particulas negras indican que",
+                "esa pareja no tiene una receta registrada.",
+                "No es una prohibicion: revisa Plant Codex."
             )
         )
     );
