@@ -13,6 +13,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -23,9 +24,14 @@ public final class DisplayGroupGenerators {
         throw new IllegalStateException("Utility class");
     }
 
+    private static void addTaggedDisplay(@Nonnull DisplayGroup displayGroup, @Nonnull String name, @Nonnull Display display) {
+        display.getPersistentDataContainer().set(Keys.DISPLAY_ENTITY, PersistentDataType.STRING, displayGroup.getParentUUID().toString());
+        addTaggedDisplay(displayGroup,name, display);
+    }
+
     public static DisplayGroup generateCrossedCropStickGroup(@Nonnull Location location) {
         final DisplayGroup displayGroup = generateCropStickGroup(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "flat_z_1",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 1, -0.43))
@@ -33,7 +39,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_FLAT_Z_ALIGN.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "flat_z_2",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 1, 0.5))
@@ -41,7 +47,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_FLAT_Z_ALIGN.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "flat_x_1",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.45, 1, 0))
@@ -49,7 +55,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_FLAT_X_ALIGN.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "flat_x_2",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.35, 1, 0))
@@ -62,7 +68,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateCropStickGroup(@Nonnull Location location) {
         final DisplayGroup displayGroup = new DisplayGroup(location, 0, 0);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "standing_1",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.45, 0.5, -0.47))
@@ -70,7 +76,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_POINT_UPRIGHT.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "standing_2",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.37, 0.5, -0.47))
@@ -78,7 +84,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_POINT_UPRIGHT.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "standing_3",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.37, 0.5, 0.47))
@@ -86,7 +92,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.STICK_POINT_UPRIGHT.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "standing_4",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.45, 0.5, 0.47))
@@ -99,7 +105,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateCloche(@Nonnull Location location) {
         final DisplayGroup displayGroup = new DisplayGroup(location, 1.5f, 0.5f);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "cloche_base",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.5, 0))
@@ -107,7 +113,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.CLOCHE_BASE.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "cloche_glass",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 1.25, 0))
@@ -115,7 +121,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.CLOCHE_GLASS.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "cloche_dirt",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.85, 0))
@@ -127,7 +133,7 @@ public final class DisplayGroupGenerators {
     }
 
     public static void addPlantToCloche(@Nonnull DisplayGroup displayGroup) {
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "plant",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 1.25, 0))
@@ -143,7 +149,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generatePlant(@Nonnull Location location) {
         final DisplayGroup displayGroup = new DisplayGroup(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "plant",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.5, 0))
@@ -156,7 +162,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateBush(@Nonnull Location location) {
         final DisplayGroup displayGroup = new DisplayGroup(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "bush",
             new BlockDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.5, 0, -0.5))
@@ -180,7 +186,7 @@ public final class DisplayGroupGenerators {
     }
 
     public static void addItemsToPlant(@Nonnull DisplayGroup displayGroup, @Nonnull ItemStack itemStack) {
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_1",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.32, 0.08, 0.32))
@@ -188,7 +194,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.PLANT_HANGING_DROP.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_2",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.32, 0.39, -0.32))
@@ -196,7 +202,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.PLANT_HANGING_DROP.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_3",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.32, 0.64, 0.32))
@@ -211,7 +217,7 @@ public final class DisplayGroupGenerators {
     }
 
     public static void addItemsToBush(@Nonnull DisplayGroup displayGroup, @Nonnull ItemStack itemStack) {
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_1",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.32, 0.19, 0.32))
@@ -219,7 +225,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.PLANT_HANGING_DROP.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_2",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.32, 0.43, -0.32))
@@ -227,7 +233,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.PLANT_HANGING_DROP.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "drop_3",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.32, 0.71, 0.32))
@@ -245,7 +251,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateBaseCounter(@Nonnull Location location) {
         final DisplayGroup displayGroup = new DisplayGroup(location, 1.01f, 1.01f);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "counter_base",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.4, 0))
@@ -253,7 +259,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.COUNTER_BODY.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "counter_top",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.8, 0))
@@ -266,7 +272,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateChoppingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "chopping_board",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.1, 0.9, 0.15))
@@ -274,7 +280,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.CHOPPING_BOARD.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "knife",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.1, 0.95, 0.15))
@@ -287,7 +293,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateBlenderCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "blender_base",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.3, 0.9, -0.3))
@@ -295,7 +301,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.BLENDER_BASE.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "blender_top",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.3, 1.15, -0.3))
@@ -308,7 +314,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateSlicingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "chopping_board",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.2, 0.9, 0.3))
@@ -316,7 +322,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.CHOPPING_BOARD_2.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "knife",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.2, 0.95, 0.3))
@@ -329,7 +335,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateMashingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "bowl",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.05, 0.92, 0.1))
@@ -337,7 +343,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.MASHING_BOWL.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "masher",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.1, 0.85, -0.3))
@@ -351,7 +357,7 @@ public final class DisplayGroupGenerators {
     public static DisplayGroup generateGrindingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
         BlockData blockData = Material.CAULDRON.createBlockData();
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "bowl",
             new BlockDisplayBuilder()
                 .setGroupParentOffset(new Vector(0.1, 0.82, -0.2))
@@ -359,7 +365,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.GRINDING_BOWL.getTransformation(false))
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "bone",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.1, 0.85, 0.3))
@@ -372,7 +378,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateOvenCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "oven_door",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.34, 0.45))
@@ -380,7 +386,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.OVEN_DOOR.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "buttons",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.68, 0.45))
@@ -393,7 +399,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateFryingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "hob",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.85, 0))
@@ -401,7 +407,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.FRY_HOB.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "hob_core",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.82, 0))
@@ -409,7 +415,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.FRY_HOB_CORE.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "buttons",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.68, 0.45))
@@ -424,7 +430,7 @@ public final class DisplayGroupGenerators {
         DisplayGroup displayGroup = generateFryingCounter(location);
         Levelled blockData = (Levelled) Material.WATER_CAULDRON.createBlockData();
         blockData.setLevel(3);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "pot",
             new BlockDisplayBuilder()
                 .setGroupParentOffset(new Vector(-0.15, 0.85, -0.15))
@@ -438,7 +444,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateFinishingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "hob",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.85, 0))
@@ -451,7 +457,7 @@ public final class DisplayGroupGenerators {
 
     public static DisplayGroup generateGrillingCounter(@Nonnull Location location) {
         DisplayGroup displayGroup = generateBaseCounter(location);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "grill_door",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.50, 0.45))
@@ -459,7 +465,7 @@ public final class DisplayGroupGenerators {
                 .setTransformation(Transformations.GRILL_DOOR.getTransformation())
                 .build(displayGroup)
         );
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "buttons",
             new ItemDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 0.68, 0.45))
@@ -472,7 +478,7 @@ public final class DisplayGroupGenerators {
 
     public static void addNameToGroup(@Nonnull DisplayGroup displayGroup, @Nonnull String name) {
         removeNameFromGroup(displayGroup);
-        displayGroup.addDisplay(
+        addTaggedDisplay(displayGroup,
             "name",
             new TextDisplayBuilder()
                 .setGroupParentOffset(new Vector(0, 1.5, 0))

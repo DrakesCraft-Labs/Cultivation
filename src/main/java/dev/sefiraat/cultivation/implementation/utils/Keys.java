@@ -18,6 +18,7 @@ public final class Keys {
     public static final NamespacedKey DROPPED_PLAYER = newKey("dropped-player");
     public static final NamespacedKey RECIPE_ID = newKey("recipe-id");
     public static final NamespacedKey SATIATED = newKey("satiated");
+    public static final NamespacedKey DISPLAY_ENTITY = newKey("display-entity");
 
     @Nonnull
     public static NamespacedKey newKey(@Nonnull String value) {

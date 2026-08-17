@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -19,23 +20,29 @@ import dev.sefiraat.cultivation.api.datatypes.instances.FloraLevelProfile;
 import dev.sefiraat.cultivation.api.datatypes.instances.SeedPackInstance;
 import dev.sefiraat.cultivation.api.slimefun.items.trees.TreeBlockDescriptor;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.SeedPack;
+import dev.sefiraat.cultivation.implementation.utils.Keys;
 import dev.drake.sefilib.entity.display.DisplayGroup;
 import dev.drake.sefilib.string.Theme;
 import io.github.bakedlibs.dough.blocks.BlockPosition;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.libraries.dough.data.persistent.PersistentDataAPI;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
+import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
@@ -223,22 +230,63 @@ public class CultivationCommands extends BaseCommand {
     }
 
     @Subcommand("removeEntities")
+    @CommandCompletion("@range:0-10000")
     @CommandPermission("cultivation.admin.entities")
-    public void removeDisplayGroups(CommandSender sender, int radius) {
-        if (sender instanceof Player player) {
-            player.getWorld().getNearbyEntities(
+    public void removeDisplayGroups(CommandSender sender, @Optional Integer radius) {
+        int removed = 0;
+        if (radius != null) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(Theme.applyThemeToString(Theme.WARNING, "A radius can only be used by a player"));
+                return;
+            }
+            for (Entity entity : player.getWorld().getNearbyEntities(
                 player.getLocation(),
                 radius,
                 radius,
                 radius,
-                Interaction.class::isInstance
-            ).forEach(entity -> {
-                DisplayGroup displayGroup = DisplayGroup.fromInteraction((Interaction) entity);
-                if (displayGroup != null) {
-                    displayGroup.remove();
+                this::isCultivationEntity
+            )) {
+                if (entity instanceof Interaction interaction) {
+                    DisplayGroup displayGroup = DisplayGroup.fromInteraction(interaction);
+                    if (displayGroup != null) {
+                        displayGroup.remove();
+                        removed++;
+                    }
+                } else {
+                    entity.remove();
+                    removed++;
                 }
-            });
+            }
+            sender.sendMessage(Theme.applyThemeToString(Theme.SUCCESS, "Removed " + removed + " display entit" + (removed == 1 ? "y" : "ies") + " within " + radius + " blocks"));
+        } else {
+            for (World world : Bukkit.getWorlds()) {
+                for (Interaction interaction : world.getEntitiesByClass(Interaction.class)) {
+                    DisplayGroup displayGroup = DisplayGroup.fromInteraction(interaction);
+                    if (displayGroup != null) {
+                        displayGroup.remove();
+                        removed++;
+                    }
+                }
+                for (Display display : world.getEntitiesByClass(Display.class)) {
+                    if (isCultivationDisplay(display)) {
+                        display.remove();
+                        removed++;
+                    }
+                }
+            }
+            sender.sendMessage(Theme.applyThemeToString(Theme.SUCCESS, "Removed " + removed + " display entit" + (removed == 1 ? "y" : "ies") + " across all worlds"));
         }
+    }
+
+    private boolean isCultivationEntity(@Nonnull Entity entity) {
+        if (entity instanceof Interaction) {
+            return true;
+        }
+        return entity instanceof Display display && isCultivationDisplay(display);
+    }
+
+    private boolean isCultivationDisplay(@Nonnull Display display) {
+        return display.getPersistentDataContainer().has(Keys.DISPLAY_ENTITY, PersistentDataType.STRING);
     }
 
     @Subcommand("packpeek")
