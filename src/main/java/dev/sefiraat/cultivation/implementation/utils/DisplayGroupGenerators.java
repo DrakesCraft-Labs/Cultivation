@@ -26,7 +26,7 @@ public final class DisplayGroupGenerators {
 
     private static void addTaggedDisplay(@Nonnull DisplayGroup displayGroup, @Nonnull String name, @Nonnull Display display) {
         display.getPersistentDataContainer().set(Keys.DISPLAY_ENTITY, PersistentDataType.STRING, displayGroup.getParentUUID().toString());
-        addTaggedDisplay(displayGroup,name, display);
+        displayGroup.addDisplay(name, display);
     }
 
     public static DisplayGroup generateCrossedCropStickGroup(@Nonnull Location location) {
