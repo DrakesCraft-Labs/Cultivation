@@ -252,7 +252,9 @@ public class CultivationCommands extends BaseCommand {
                         displayGroup.remove();
                         removed++;
                     }
-                } else {
+                } else if (entity instanceof Display display && isCultivationDisplay(display)) {
+                    // Solo se borra el display si lleva la etiqueta de Cultivation. El remove()
+                    // incondicional que habia aqui borraba cualquier entidad que pasara el filtro.
                     entity.remove();
                     removed++;
                 }
@@ -279,8 +281,12 @@ public class CultivationCommands extends BaseCommand {
     }
 
     private boolean isCultivationEntity(@Nonnull Entity entity) {
-        if (entity instanceof Interaction) {
-            return true;
+        // Una Interaction solo cuenta si de verdad pertenece a un DisplayGroup de Cultivation.
+        // Antes valia cualquiera, y las Interaction las usan tambien los hologramas, los NPC y
+        // los displays de otros addons: con un radio grande el comando se llevaba por delante
+        // entidades ajenas. La rama sin radio ya filtraba asi; esta se habia quedado atras.
+        if (entity instanceof Interaction interaction) {
+            return DisplayGroup.fromInteraction(interaction) != null;
         }
         return entity instanceof Display display && isCultivationDisplay(display);
     }
