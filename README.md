@@ -2,90 +2,70 @@
 
   <img src="https://raw.githubusercontent.com/DrakesCraft-Labs/Cultivation_Updated/main/banner.svg" alt="Cultivation_Updated Banner" width="920" />
 
-# 🧪 Cultivation-Drake
+# 🌿 Cultivation-Drake
 
-**Addon de Slimefun4 con Aceleración Nativa en Rust (Java 21 Project Panama FFM API)**
+**Botánica avanzada, genética vegetal, cruces de cultivos y agricultura industrial para Slimefun4.**
 
 <p>
   <a href="https://github.com/DrakesCraft-Labs/Cultivation_Updated"><img src="https://img.shields.io/badge/GitHub-Cultivation--Drake-181717?style=for-the-badge&logo=github" alt="GitHub"/></a>
-  <img src="https://img.shields.io/badge/Java-21_FFM_Panama-F89820?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21 FFM"/>
-  <img src="https://img.shields.io/badge/Rust-FFM_Accelerated-FF4500?style=for-the-badge&logo=rust&logoColor=white" alt="Rust Native"/>
+  <img src="https://img.shields.io/badge/Slimefun4-Drake_Edition-22C55E?style=for-the-badge&logo=curseforge&logoColor=white" alt="Slimefun4"/>
   <img src="https://img.shields.io/badge/Paper-1.21.11-38BDF8?style=for-the-badge&logo=minecraft&logoColor=white" alt="Paper 1.21.11"/>
+  <img src="https://img.shields.io/badge/Java-21-F89820?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21"/>
 </p>
 
 </div>
 
 ---
 
-## ⚡ Novedades del Modelo Híbrido Cero-Riesgo
+## 📖 ¿Qué es Cultivation-Drake?
 
-`Cultivation-Drake` integra el componente Panama FFM **`RustNativeBridge`** para delegar la aceleración de tickers de máquinas y cálculos pesados directamente al motor nativo `Slimefun-Rust` (`slimefun_ffi`):
-- 🚀 **Procesamiento de Ticks en Nanosegundos**: Multi-hilo paralelo real en CPU sin pausas de Garbage Collector.
-- 🛡️ **Preservación Total sin Reset (SQLite 0-Reset)**: Mantiene intactos todos los bloques e inventarios existentes en `stored-blocks.db`.
+**Cultivation-Drake** es el addon definitivo de botánica y agricultura genética para **Slimefun4**. Introduce un profundo sistema de cruce de semillas, mutaciones botánicas, árboles frutales exóticos, maquinaria de hidroponía y obtención de recursos minerales a través de la cosecha de plantas modificadas.
+
+Todo el contenido se investiga y fabrica directamente desde la **Guía de Slimefun (`/sf guide`)** en la categoría de *Cultivation*.
 
 ---
 
-## 🛠️ Compilación
+## 🌱 Mecánicas y Características Principales
 
-```bash
-mvn clean package
-```
+### 🔬 1. Genética Vegetal y Cruces Botánicos
+* **Estación de Hibridación**: Cruza diferentes cepas de plantas para descubrir especies mutadas de mayor rendimiento.
+* **Diccionario de Cruces Integrado**: Consulta todas las combinaciones genéticas directamente en el juego para desbloquear nuevas familias de flora.
+* **Plantas de Recursos**: Cultiva cepas capaces de sintetizar metales preciosos, esencias orgánicas y polvos mágicos.
 
-## 🌱 Guía de cruces
+### 🚜 2. Hidroponía y Maquinaria Agrícola
+* **Aspersores de Riego**: Mantienen la hidratación óptima de la tierra de cultivo en un radio amplio sin necesidad de bloques de agua visibles.
+* **Invernaderos Automatizados**: Aceleran las etapas de maduración de cultivos mediante control térmico y de luz.
+* **Recoletoras Automáticas**: Siega y almacena las cosechas maduras directamente en sistemas de almacenamiento o redes de transporte.
 
-La referencia operativa es el **Diccionario de Cruces** de la guía de Slimefun:
-lee las recetas cargadas por esta versión del servidor y evita que una tabla web
-desactualizada entregue combinaciones inválidas.
+### 🍎 3. Flora Exótica y Nuevos Alimentos
+* Decenas de nuevos árboles frutales, arbustos mágicos e ingredientes de alta cocina integrables con *Gastronomicon*.
+* Pociones y elixires botánicos con efectos de regeneración, fuerza natural y resistencia ambiental.
 
-La guía de soporte y desarrollo está en
-[docs/GUIA_DE_CRUCES_DRAKESCRAFT.md](docs/GUIA_DE_CRUCES_DRAKESCRAFT.md).
+---
 
-## 📜 Procedencia
+## 📋 Compatibilidad Técnica
 
-Este es un fork mantenido por DrakesCraft Labs. Conserva la licencia GPL-3.0 y
-los avisos de autoría originales requeridos, mientras que la operación, soporte
-y documentación se gestionan desde este repositorio.
+| Parámetro | Requisito |
+|---|---|
+| **Servidor** | Paper / Purpur / Folia **1.21.11** |
+| **Java** | **Java 21** LTS |
+| **Core Requerido** | [Slimefun4-Drake](https://github.com/DrakesCraft-Labs/Slimefun4-Drake) |
+| **Arquitectura** | 100% Server-side |
+
+---
+
+## 📥 Instalación
+
+1. Descarga la última versión de `Cultivation_Updated.jar` desde la pestaña [Versions](https://modrinth.com/mod/cultivation-drake/versions).
+2. Coloca el archivo `.jar` en la carpeta `plugins/` de tu servidor junto a `Slimefun4-Drake.jar`.
+3. Inicia o reinicia el servidor.
 
 ---
 
 <div align="center">
 
-**DrakesCraft Labs** · Mantenido por [**JackStar6677-1**](https://github.com/JackStar6677-1)
+**Desarrollado y Mantenido por [DrakesCraft Labs](https://github.com/DrakesCraft-Labs)**  
+*Basado en el trabajo original de Sefiraat, J3fftw y JustAHuman.*  
+Licencia **GPL-3.0-only**.
 
 </div>
-
-## Qué añade al juego
-
-Flora, cruces y cultivos de Slimefun para DrakesCraft.
-
-
-Todo se fabrica y se investiga desde la guía normal (`/sf guide`), como cualquier otro contenido
-de Slimefun: no hace falta ningún comando especial para empezar.
-
-## Compatibilidad
-
-| | |
-|---|---|
-| Servidor | Paper / Purpur **1.21.11** |
-| Java | **21** |
-| Requiere | [Slimefun4-Drake](https://github.com/DrakesCraft-Labs/Slimefun4-Drake) |
-| Lado | Solo servidor — quien juega no instala nada |
-| Versión | ${project.version} |
-
-## Instalación
-
-1. Descarga el `.jar` de la última versión.
-2. Déjalo en la carpeta `plugins/` del servidor, junto a Slimefun.
-3. Reinicia el servidor. Los objetos aparecen solos en la guía.
-
-> Este addon está portado al fork de Slimefun de DrakesCraft. Con el Slimefun original puede no
-> cargar, porque cambia el espacio de nombres de las clases.
-
-## Créditos
-- Sefiraat
-- J3fftw
-- JustAHuman
-
-Port y mantenimiento por **DrakesCraft Labs**. La autoría original es de quien figura arriba; el detalle está en [docs/UPSTREAM_ATTRIBUTION.md](https://raw.githubusercontent.com/DrakesCraft-Labs/Cultivation_Updated/main/docs/UPSTREAM_ATTRIBUTION.md).
-
-Licencia **GPL-3.0-only**.
