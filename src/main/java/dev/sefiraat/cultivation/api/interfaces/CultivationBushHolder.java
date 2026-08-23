@@ -45,6 +45,11 @@ public interface CultivationBushHolder {
 
     default void setAge(@Nonnull Location location, int age) {
         DisplayGroup displayGroup = getBushDisplayGroup(location);
+        if (displayGroup == null && hasDisplayBush(location)) {
+            // The parent interaction was lost: rebuild the bush display so it stays interactive.
+            addDisplayBush(location);
+            displayGroup = getBushDisplayGroup(location);
+        }
         if (displayGroup != null) {
             DisplayGroupGenerators.setBushAge(displayGroup, age);
         }
@@ -53,14 +58,24 @@ public interface CultivationBushHolder {
     default void addItemsToDisplay(@Nonnull Location location, @Nonnull ItemStack itemStack) {
         if (hasDisplayBush(location)) {
             DisplayGroup group = getBushDisplayGroup(location);
-            DisplayGroupGenerators.addItemsToPlant(group, itemStack);
+            if (group == null) {
+                // The parent interaction was lost (e.g. chunk reload or cleanup), so rebuild the
+                // bush display instead of leaving an untouchable ghost.
+                addDisplayBush(location);
+                group = getBushDisplayGroup(location);
+            }
+            if (group != null) {
+                DisplayGroupGenerators.addItemsToPlant(group, itemStack);
+            }
         }
     }
 
     default void removeItems(@Nonnull Location location) {
         if (hasDisplayBush(location)) {
             DisplayGroup group = getBushDisplayGroup(location);
-            DisplayGroupGenerators.removeItemsFromPlant(group);
+            if (group != null) {
+                DisplayGroupGenerators.removeItemsFromPlant(group);
+            }
         }
     }
 

@@ -46,14 +46,24 @@ public interface CultivationPlantHolder {
     default void addItemsToDisplay(@Nonnull Location location, @Nonnull ItemStack itemStack) {
         if (hasDisplayPlant(location)) {
             DisplayGroup group = getPlantDisplayGroup(location);
-            DisplayGroupGenerators.addItemsToPlant(group, itemStack);
+            if (group == null) {
+                // The parent interaction was lost (e.g. chunk reload or cleanup), so rebuild the
+                // plant display instead of leaving an untouchable ghost.
+                addDisplayPlant(location);
+                group = getPlantDisplayGroup(location);
+            }
+            if (group != null) {
+                DisplayGroupGenerators.addItemsToPlant(group, itemStack);
+            }
         }
     }
 
     default void removeItems(@Nonnull Location location) {
         if (hasDisplayPlant(location)) {
             DisplayGroup group = getPlantDisplayGroup(location);
-            DisplayGroupGenerators.removeItemsFromPlant(group);
+            if (group != null) {
+                DisplayGroupGenerators.removeItemsFromPlant(group);
+            }
         }
     }
 

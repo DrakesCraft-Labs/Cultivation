@@ -7,6 +7,7 @@ import dev.sefiraat.cultivation.api.slimefun.plant.Growth;
 import dev.sefiraat.cultivation.api.slimefun.plant.PlantTheme;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
 import dev.sefiraat.cultivation.implementation.utils.Keys;
+import dev.drake.sefilib.entity.display.DisplayGroup;
 import io.github.bakedlibs.dough.collections.RandomizedSet;
 import com.github.drakescraft_labs.slimefun4.api.events.PlayerRightClickEvent;
 import com.github.drakescraft_labs.slimefun4.api.items.ItemSetting;
@@ -126,7 +127,10 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
                 growthDisplay(block.getLocation());
             }
         } else if (growthStage == 1) {
-            if (!hasDisplayPlant(block)) {
+            DisplayGroup plantDisplay = getPlantDisplayGroup(block.getLocation());
+            if (!hasDisplayPlant(block) || plantDisplay == null) {
+                // Missing flag or a lost parent interaction (ghost plant): rebuild the
+                // display so the plant stays breakable and interactive.
                 addDisplayPlant(block.getLocation());
             } else {
                 removeItems(block.getLocation());
