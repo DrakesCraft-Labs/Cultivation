@@ -50,6 +50,13 @@ public class PlantAnalyser extends SimpleSlimefunItem<ItemUseHandler> implements
             return;
         }
 
+        // The analyser owns this interaction. Without cancelling the underlying
+        // right-click, mature flora also receives its BlockUseHandler and is
+        // harvested before the player can inspect it.
+        if (item instanceof CultivationLevelProfileHolder) {
+            playerRightClickEvent.cancel();
+        }
+
         if (playerRightClickEvent.getPlayer().isSneaking()) {
             applyName(item, block);
         } else {
