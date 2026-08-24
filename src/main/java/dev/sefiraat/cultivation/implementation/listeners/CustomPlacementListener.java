@@ -49,13 +49,13 @@ public class CustomPlacementListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWaterHitsPlant(@Nonnull BlockFromToEvent event) {
-        Location location = event.getBlock().getLocation();
+        Location location = event.getToBlock().getLocation();
         unsafelyKillItem(location, BlockStorage.check(location));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPistonExtends(@Nonnull BlockPistonExtendEvent event) {
         for (Block block : event.getBlocks()) {
             Block issueBlock = block.getRelative(BlockFace.UP);
@@ -63,7 +63,7 @@ public class CustomPlacementListener implements Listener {
             unsafelyKillItem(location, BlockStorage.check(location));
         }
     }
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPistonRetracts(@Nonnull BlockPistonRetractEvent event) {
         for (Block block : event.getBlocks()) {
             Block issueBlock = block.getRelative(BlockFace.UP);
@@ -72,13 +72,13 @@ public class CustomPlacementListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockSpread(@Nonnull BlockSpreadEvent event) {
         Location location = event.getBlock().getLocation();
         unsafelyKillItem(location, BlockStorage.check(location));
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBoneMeal(@Nonnull BlockFertilizeEvent event) {
         for (BlockState blockState : event.getBlocks()) {
             Block issueBlock = blockState.getBlock();
@@ -87,7 +87,7 @@ public class CustomPlacementListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSnowmanBlockForm(@Nonnull EntityBlockFormEvent event) {
         Location location = event.getBlock().getLocation();
         unsafelyKillItem(location, BlockStorage.check(location));
@@ -130,7 +130,7 @@ public class CustomPlacementListener implements Listener {
         });
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLiquidDispense(@Nonnull BlockDispenseEvent event) {
         Block block = event.getBlock();
         if (isLiquid(event.getItem())
@@ -147,11 +147,14 @@ public class CustomPlacementListener implements Listener {
             location.getWorld().dropItem(location, plant.getDroppedItemStack(location));
             plant.removeCropped(location);
             plant.removePlantDisplayGroup(location);
+            plant.removeLevelProfile(location);
+            plant.removeOwner(location);
             BlockStorage.clearBlockInfo(location);
             location.getBlock().setType(Material.AIR);
         } else if (slimefunItem instanceof CultivationBush bush) {
             location.getWorld().dropItem(location, bush.getItem().clone());
             bush.removeBushDisplayGroup(location);
+            bush.removeOwner(location);
             BlockStorage.clearBlockInfo(location);
         }
     }

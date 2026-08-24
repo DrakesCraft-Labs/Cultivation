@@ -9,9 +9,7 @@ import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
 import dev.sefiraat.cultivation.implementation.utils.Keys;
 import dev.drake.sefilib.entity.display.DisplayGroup;
 import io.github.bakedlibs.dough.collections.RandomizedSet;
-import com.github.drakescraft_labs.slimefun4.api.events.PlayerRightClickEvent;
 import com.github.drakescraft_labs.slimefun4.api.items.ItemSetting;
-import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItemStack;
 import com.github.drakescraft_labs.slimefun4.api.items.settings.DoubleRangeSetting;
 import com.github.drakescraft_labs.slimefun4.api.items.settings.IntRangeSetting;
@@ -74,23 +72,6 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
 
         this.harvestItems.add(harvestStack, finalWeight);
         return this;
-    }
-
-    @Override
-    protected void onBlockUse(@NotNull PlayerRightClickEvent event) {
-        // Plants are harvested exclusively with Cultivation's harvesting tool.
-        // Slimefun dispatches both the held item's handler and the clicked block's
-        // handler for the same interaction, so accepting every right-click here
-        // makes tools such as the Plant Analyser harvest the plant as a side effect.
-        Optional<Block> blockOptional = event.getClickedBlock();
-        SlimefunItem heldItem = SlimefunItem.getByItem(event.getItem());
-        if (blockOptional.isEmpty()
-                || harvestItems.size() == 0
-                || !(heldItem instanceof HarvestingTool)) {
-            return;
-        }
-        Block block = blockOptional.get();
-        harvest(block);
     }
 
     public void harvest(@Nonnull Block block) {

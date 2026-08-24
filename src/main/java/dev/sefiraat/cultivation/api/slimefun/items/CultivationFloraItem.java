@@ -131,16 +131,32 @@ public abstract class CultivationFloraItem<T extends CultivationFloraItem<T>> ex
         ownerCache.put(location, uuid);
     }
 
+    /** Removes cached ownership when flora is broken or invalidated. */
+    public void removeOwner(@Nonnull Location location) {
+        ownerCache.remove(location);
+    }
+
     @ParametersAreNonnullByDefault
     protected void onTick(Block block, T flora, Config data) {
         Location location = block.getLocation();
-        int growthStage = Integer.parseInt(data.getString(Keys.FLORA_GROWTH_STAGE));
+        int growthStage = readGrowthStage(location, data);
         onTickAlways(location, flora, data);
         if (growthStage >= getMaxGrowthStages()) {
             onTickFullyGrown(location, flora, data);
             tryBreed(block, flora);
         } else {
             tryGrow(block, flora, data, location, growthStage);
+        }
+    }
+
+    private int readGrowthStage(@Nonnull Location location, @Nonnull Config data) {
+        String storedStage = data.getString(Keys.FLORA_GROWTH_STAGE);
+        try {
+            return Math.max(0, Integer.parseInt(storedStage));
+        } catch (NumberFormatException exception) {
+            // Old or partially written BlockStorage entries must not throw on every tick.
+            BlockStorage.addBlockInfo(location, Keys.FLORA_GROWTH_STAGE, "0");
+            return 0;
         }
     }
 

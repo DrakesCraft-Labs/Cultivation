@@ -46,9 +46,14 @@ public class HarvestableBush extends CultivationBush implements CultivationHarve
 
     @Override
     protected void onBlockUse(PlayerRightClickEvent event) {
-        // shouldn't be possible, but just to be safe
+        // Bushes are intentionally harvested with an empty hand. Without this
+        // guard, inspecting or renaming one with another Cultivation tool also
+        // harvested it through the clicked block's handler.
         Optional<Block> blockOptional = event.getClickedBlock();
-        if (blockOptional.isEmpty() || harvestItems.size() == 0) {
+        ItemStack heldItem = event.getItem();
+        if (blockOptional.isEmpty()
+                || harvestItems.size() == 0
+                || (heldItem != null && !heldItem.getType().isAir())) {
             return;
         }
         Block block = blockOptional.get();

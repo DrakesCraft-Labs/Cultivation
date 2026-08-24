@@ -38,8 +38,12 @@ public class RightClickKitchenMachine extends KitchenRecipeMachineSimple {
     protected void onRightClick(@Nonnull PlayerRightClickEvent event) {
         if (event.getPlayer().isSneaking()) {
             super.onRightClick(event);
+            return;
         }
         ItemStack itemStack = event.getItem();
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return;
+        }
         SlimefunItem slimefunItem = SlimefunItem.getByItem(itemStack);
         String id = itemStack.getType().name();
         if (slimefunItem != null) {

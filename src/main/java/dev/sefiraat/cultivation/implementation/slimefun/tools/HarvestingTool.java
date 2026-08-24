@@ -47,6 +47,9 @@ public class HarvestingTool extends RefillableUseItem implements NotPlaceable {
             SlimefunItem item = BlockStorage.check(block);
 
             if (item instanceof HarvestablePlant harvestable && harvestable.isMature(block)) {
+                // This held item owns the interaction. Cancelling prevents the
+                // clicked flora handler from processing the same click again.
+                playerRightClickEvent.cancel();
                 harvestable.harvest(block);
                 damageItem(playerRightClickEvent.getPlayer(), playerRightClickEvent.getItem());
             }

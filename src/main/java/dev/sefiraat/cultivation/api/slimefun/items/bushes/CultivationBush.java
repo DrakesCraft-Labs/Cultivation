@@ -55,7 +55,9 @@ public abstract class CultivationBush extends CultivationFloraItem<CultivationBu
 
     @OverridingMethodsMustInvokeSuper
     protected void onBreak(@NotNull BlockBreakEvent event) {
-        removeBush(event.getBlock().getLocation());
+        var location = event.getBlock().getLocation();
+        removeBush(location);
+        removeOwner(location);
     }
 
     @Override

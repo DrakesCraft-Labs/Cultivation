@@ -86,7 +86,12 @@ public interface CultivationCroppable {
         if (uuid == null) {
             return null;
         }
-        return UUID.fromString(uuid);
+        try {
+            return UUID.fromString(uuid);
+        } catch (IllegalArgumentException exception) {
+            BlockStorage.addBlockInfo(location, GROUP_PARENT, null);
+            return null;
+        }
     }
 
     @Nullable

@@ -50,11 +50,22 @@ public interface CultivationLevelProfileHolder {
                                               String strengthString,
                                               String analysedString
     ) {
-        int level = levelString == null ? 1 : Integer.parseInt(levelString);
-        int speed = speedString == null ? 1 : Integer.parseInt(speedString);
-        int strength = strengthString == null ? 1 : Integer.parseInt(strengthString);
+        int level = parsePositiveValue(levelString);
+        int speed = parsePositiveValue(speedString);
+        int strength = parsePositiveValue(strengthString);
         boolean analyzed = Boolean.parseBoolean(analysedString);
         return new FloraLevelProfile(level, speed, strength, analyzed);
+    }
+
+    private static int parsePositiveValue(String value) {
+        if (value == null) {
+            return 1;
+        }
+        try {
+            return Math.max(1, Integer.parseInt(value));
+        } catch (NumberFormatException exception) {
+            return 1;
+        }
     }
 
     default void setLevelProfile(@Nonnull Location location, FloraLevelProfile profile) {

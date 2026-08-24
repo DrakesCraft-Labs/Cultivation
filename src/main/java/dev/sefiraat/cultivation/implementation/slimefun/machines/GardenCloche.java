@@ -77,6 +77,9 @@ public class GardenCloche extends SlimefunItem implements EnergyNetComponent {
                     @Override
                     public void tick(Block block, SlimefunItem item, Config data) {
                         BlockMenu blockMenu = BlockStorage.getInventory(block);
+                        if (blockMenu == null) {
+                            return;
+                        }
                         ItemStack possiblePlant = blockMenu.getItemInSlot(PLANT_SLOT);
                         SlimefunItem slimefunItem = SlimefunItem.getByItem(possiblePlant);
                         Location location = block.getLocation();
@@ -89,8 +92,12 @@ public class GardenCloche extends SlimefunItem implements EnergyNetComponent {
                             double rand = ThreadLocalRandom.current().nextDouble();
                             if (rand < growthRate) {
                                 ItemStack itemStack = plant.getRandomItemWithDropModifier(profile);
-                                blockMenu.pushItem(itemStack, OUTPUT_SLOTS);
-                                removeCharge(location, POWER_REQUIREMENT);
+                                // Never consume energy or silently discard a harvest when
+                                // the generated stack cannot fit in the output inventory.
+                                if (itemStack != null && blockMenu.fits(itemStack, OUTPUT_SLOTS)) {
+                                    blockMenu.pushItem(itemStack, OUTPUT_SLOTS);
+                                    removeCharge(location, POWER_REQUIREMENT);
+                                }
                             }
                         }
                     }

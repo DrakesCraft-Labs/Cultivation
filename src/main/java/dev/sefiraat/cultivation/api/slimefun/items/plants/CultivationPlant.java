@@ -160,6 +160,7 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
         removePlant(location);
         location.getWorld().dropItem(location.clone().add(0.5, 0.5, 0.5), itemToDrop);
         removeLevelProfile(location);
+        removeOwner(location);
         event.setDropItems(false);
     }
 
