@@ -30,7 +30,7 @@ public class SeedPackInstance {
     }
 
     public void takeOne(FloraLevelProfile profile) {
-        int amount = amountMap.get(profile);
+        int amount = amountMap.getOrDefault(profile, 0);
         if (amount > 0) {
             int newAmount = amount - 1;
             if (newAmount > 0) {
@@ -47,7 +47,9 @@ public class SeedPackInstance {
     }
 
     public void add(FloraLevelProfile profile, int amount) {
-        amountMap.merge(profile, amount, Integer::sum);
+        if (profile != null && amount > 0) {
+            amountMap.merge(profile, amount, Integer::sum);
+        }
     }
 
     public int getAmount(int level, int speed, int strength) {

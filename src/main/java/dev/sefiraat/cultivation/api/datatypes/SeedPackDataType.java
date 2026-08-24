@@ -67,14 +67,25 @@ public class SeedPackDataType implements PersistentDataType<PersistentDataContai
         Map<FloraLevelProfile, Integer> map = new HashMap<>();
         PersistentDataContainer container = primitive.get(PROFILE, TAG_CONTAINER);
 
-        for (NamespacedKey key : container.getKeys()) {
-            String[] keyVals = key.getKey().split("_");
-            int amount = container.getOrDefault(key, INTEGER, 0);
-            int level = Integer.parseInt(keyVals[0]);
-            int speed = Integer.parseInt(keyVals[1]);
-            int strength = Integer.parseInt(keyVals[2]);
-            FloraLevelProfile profile = new FloraLevelProfile(level, speed, strength, true);
-            map.put(profile, amount);
+        if (container != null) {
+            for (NamespacedKey key : container.getKeys()) {
+                String[] keyVals = key.getKey().split("_");
+                if (keyVals.length != 3) {
+                    continue;
+                }
+                try {
+                    int amount = container.getOrDefault(key, INTEGER, 0);
+                    int level = Integer.parseInt(keyVals[0]);
+                    int speed = Integer.parseInt(keyVals[1]);
+                    int strength = Integer.parseInt(keyVals[2]);
+                    if (amount > 0) {
+                        FloraLevelProfile profile = new FloraLevelProfile(level, speed, strength, true);
+                        map.put(profile, amount);
+                    }
+                } catch (NumberFormatException exception) {
+                    // Ignore only the malformed legacy entry; preserve every valid seed.
+                }
+            }
         }
 
         instance.setAmountMap(map);

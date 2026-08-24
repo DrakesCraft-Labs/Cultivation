@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public class SeedPackListener implements Listener {
 
@@ -39,7 +40,7 @@ public class SeedPackListener implements Listener {
             SlimefunItem packItem = SlimefunItem.getByItem(content);
             if (packItem instanceof SeedPack) {
                 if (content.getAmount() != 1) {
-                    return;
+                    continue;
                 }
                 ItemMeta contentMeta = content.getItemMeta();
                 SeedPackInstance instance = PersistentDataAPI.get(
@@ -48,7 +49,7 @@ public class SeedPackListener implements Listener {
                     SeedPackDataType.TYPE
                 );
 
-                if (instance == null || !instance.getStoredItemId().equals(plant.getId())) {
+                if (instance == null || !Objects.equals(instance.getStoredItemId(), plant.getId())) {
                     continue;
                 }
 
@@ -74,5 +75,4 @@ public class SeedPackListener implements Listener {
         }
     }
 }
-
 

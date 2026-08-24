@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -248,7 +249,12 @@ public class SeedPack extends SlimefunItem {
         private void reapplyInstance(@Nonnull CultivationPlant plant) {
             ItemMeta itemMeta = this.packStack.getItemMeta();
             PersistentDataAPI.set(itemMeta, SeedPackDataType.KEY, SeedPackDataType.TYPE, this.instance);
-            List<String> lore = itemMeta.getLore();
+            List<String> lore = itemMeta.hasLore()
+                ? new ArrayList<>(itemMeta.getLore())
+                : new ArrayList<>();
+            while (lore.size() <= 3) {
+                lore.add("");
+            }
             lore.set(3, Theme.CLICK_INFO.asTitle("Set to", plant.getItemName()));
             itemMeta.setLore(lore);
             this.packStack.setItemMeta(itemMeta);
