@@ -6,10 +6,13 @@ import dev.sefiraat.cultivation.api.interfaces.CultivationHarvestable;
 import dev.sefiraat.cultivation.api.slimefun.plant.Growth;
 import dev.sefiraat.cultivation.api.slimefun.plant.PlantTheme;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
+import dev.sefiraat.cultivation.implementation.slimefun.tools.PlantAnalyser;
 import dev.sefiraat.cultivation.implementation.utils.Keys;
 import dev.drake.sefilib.entity.display.DisplayGroup;
 import io.github.bakedlibs.dough.collections.RandomizedSet;
+import com.github.drakescraft_labs.slimefun4.api.events.PlayerRightClickEvent;
 import com.github.drakescraft_labs.slimefun4.api.items.ItemSetting;
+import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItemStack;
 import com.github.drakescraft_labs.slimefun4.api.items.settings.DoubleRangeSetting;
 import com.github.drakescraft_labs.slimefun4.api.items.settings.IntRangeSetting;
@@ -72,6 +75,26 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
 
         this.harvestItems.add(harvestStack, finalWeight);
         return this;
+    }
+
+    @Override
+    protected void onBlockUse(@NotNull PlayerRightClickEvent event) {
+        if (event.useBlock() == org.bukkit.event.Event.Result.DENY
+                || event.getInteractEvent().isCancelled()) {
+            return;
+        }
+        Optional<Block> blockOptional = event.getClickedBlock();
+        if (blockOptional.isEmpty() || harvestItems.isEmpty()) {
+            return;
+        }
+        SlimefunItem heldItem = event.getSlimefunItem().orElse(null);
+        if (heldItem instanceof PlantAnalyser) {
+            return;
+        }
+        Block block = blockOptional.get();
+        if (this.isMature(block)) {
+            harvest(block);
+        }
     }
 
     public void harvest(@Nonnull Block block) {
