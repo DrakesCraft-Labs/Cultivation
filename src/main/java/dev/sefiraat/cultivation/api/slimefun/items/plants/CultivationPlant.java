@@ -175,8 +175,9 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     @Override
     @ParametersAreNonnullByDefault
     protected boolean canGrow(Block block, CultivationPlant flora, Config data, Location location, int growthStage) {
-        Block blockBelow = block.getRelative(BlockFace.DOWN);
-        return getPlacements().contains(blockBelow.getType()) || isCropped(data);
+        // Cultivation's progression requires the first Crop Sticks application.
+        // Valid soil controls placement, but must never bypass that requirement.
+        return isCropped(data);
     }
 
     @Override
@@ -200,7 +201,10 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
             Block fatherBlock) {
         BreedResult result = Registry.getInstance().getBreedResult(mother.getId(), mate.getId());
 
-        if (!isMature(motherBlock) || !isMature(fatherBlock)) {
+        if (!isMature(motherBlock)
+                || !isMature(fatherBlock)
+                || !isCrossCropped(motherBlock)
+                || !isCrossCropped(fatherBlock)) {
             return;
         }
 
