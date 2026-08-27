@@ -234,13 +234,15 @@ public abstract class CultivationFloraItem<T extends CultivationFloraItem<T>> ex
         // Recover it lazily so mature plants keep ticking instead of being terminated.
         String storedOwner = BlockStorage.getLocationInfo(location, Keys.FLORA_OWNER);
         if (storedOwner == null) {
-            throw new IllegalStateException("Cultivation flora is missing its owner at " + location);
+            UUID fallback = new UUID(0L, 0L);
+            ownerCache.put(location, fallback);
+            return fallback;
         }
 
         try {
             uuid = UUID.fromString(storedOwner);
         } catch (IllegalArgumentException exception) {
-            throw new IllegalStateException("Cultivation flora has an invalid owner at " + location, exception);
+            uuid = new UUID(0L, 0L);
         }
 
         ownerCache.put(location, uuid);
@@ -310,8 +312,12 @@ public abstract class CultivationFloraItem<T extends CultivationFloraItem<T>> ex
         if (stage == null) {
             return false;
         }
-        final int growthStage = Integer.parseInt(stage);
-        return growthStage >= getMaxGrowthStages();
+        try {
+            final int growthStage = Integer.parseInt(stage);
+            return growthStage >= getMaxGrowthStages();
+        } catch (NumberFormatException exception) {
+            return false;
+        }
     }
 
     public void updateGrowthStage(@Nonnull Location location, int growthStage) {

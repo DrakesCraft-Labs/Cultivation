@@ -148,6 +148,10 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
             }
             block.setType(Material.AIR);
         } else if (growthStage == 2) {
+            DisplayGroup plantDisplay = getPlantDisplayGroup(block.getLocation());
+            if (!hasDisplayPlant(block) || plantDisplay == null) {
+                addDisplayPlant(block.getLocation());
+            }
             ItemStack itemStack = getRandomItemWithDropModifier(block.getLocation());
             if (itemStack != null) {
                 nextDrop.put(block.getLocation(), itemStack);
