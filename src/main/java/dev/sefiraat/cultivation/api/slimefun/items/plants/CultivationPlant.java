@@ -121,8 +121,12 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
 
         for (BlockFace face : BREEDING_DIRECTIONS) {
             Block middleBlock = motherBlock.getRelative(face);
-            // There must be space for the new block
-            if (middleBlock.getType() != Material.AIR || BlockStorage.check(middleBlock) != null) {
+            SlimefunItem middleItem = BlockStorage.check(middleBlock);
+            boolean isAir = middleBlock.getType() == Material.AIR;
+            boolean isPlaceholder = middleItem instanceof NothingPlant;
+            boolean isUnoccupiedStick = middleItem instanceof CultivationCroppable && !isMature(middleBlock);
+
+            if (!isAir && !isPlaceholder && !isUnoccupiedStick) {
                 continue;
             }
             Block potentialMate = middleBlock.getRelative(face);
@@ -171,12 +175,17 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     @Override
     @ParametersAreNonnullByDefault
     protected boolean canGrow(Block block, CultivationPlant flora, Config data, Location location, int growthStage) {
-        return isCropped(data);
+        Block blockBelow = block.getRelative(BlockFace.DOWN);
+        return getPlacements().contains(blockBelow.getType()) || isCropped(data);
     }
 
     @Override
     public double getGrowthRate(@Nonnull Location location) {
-        return getDefaultGrowthRate() * getLevelProfile(location).getLevel();
+        FloraLevelProfile profile = getLevelProfile(location);
+        if (profile != null && profile.getLevel() > 1) {
+            return getDefaultGrowthRate() * profile.getLevel();
+        }
+        return getDefaultGrowthRate();
     }
 
     public double getGrowthRate(@Nonnull FloraLevelProfile profile) {
@@ -191,10 +200,7 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
             Block fatherBlock) {
         BreedResult result = Registry.getInstance().getBreedResult(mother.getId(), mate.getId());
 
-        if (!isMature(motherBlock)
-                || !isMature(fatherBlock)
-                || !isCrossCropped(motherBlock)
-                || !isCrossCropped(fatherBlock)) {
+        if (!isMature(motherBlock) || !isMature(fatherBlock)) {
             return;
         }
 
