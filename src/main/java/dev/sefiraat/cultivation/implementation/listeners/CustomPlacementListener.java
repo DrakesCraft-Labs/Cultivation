@@ -94,15 +94,16 @@ public class CustomPlacementListener implements Listener {
     }
 
     /**
-     * Plants are represented by a player head plus display entities. Breaking the supporting
+     * Plants/Bushes are represented by player head / display entities. Breaking the supporting
      * block bypasses Slimefun's normal break handler, so remove the captured displays once
-     * Minecraft has resolved the physics update instead of leaving an untouchable ghost plant.
+     * Minecraft has resolved the physics update instead of leaving an untouchable ghost.
+     * Also handles AIR-display plants where BlockPhysics may not clear BlockStorage.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlantPhysics(@Nonnull BlockPhysicsEvent event) {
         Block block = event.getBlock();
         SlimefunItem slimefunItem = BlockStorage.check(block);
-        if (!(slimefunItem instanceof CultivationPlant plant)) {
+        if (!(slimefunItem instanceof CultivationPlant) && !(slimefunItem instanceof CultivationBush)) {
             return;
         }
         if (block.getRelative(BlockFace.DOWN).getType().isSolid()) {
@@ -110,22 +111,64 @@ public class CustomPlacementListener implements Listener {
         }
 
         Location location = block.getLocation();
-        DisplayGroup plantDisplay = plant.getPlantDisplayGroup(location);
-        DisplayGroup cropDisplay = plant.getCropDisplayGroup(location);
+        SlimefunItem capturedItem = slimefunItem;
+        // Capturar grupos antes del tick siguiente (pueden perderse al limpiar storage)
+        DisplayGroup plantDisplay = null;
+        DisplayGroup cropDisplay = null;
+        DisplayGroup bushDisplay = null;
+        if (capturedItem instanceof CultivationPlant plant) {
+            plantDisplay = plant.getPlantDisplayGroup(location);
+            cropDisplay = plant.getCropDisplayGroup(location);
+        } else if (capturedItem instanceof CultivationBush bush) {
+            bushDisplay = bush.getBushDisplayGroup(location);
+        }
 
+        DisplayGroup finalPlantDisplay = plantDisplay;
+        DisplayGroup finalCropDisplay = cropDisplay;
+        DisplayGroup finalBushDisplay = bushDisplay;
         Bukkit.getScheduler().runTask(Cultivation.getInstance(), () -> {
-            if (BlockStorage.check(location) instanceof CultivationPlant) {
+            // Si el soporte sigue sólido alguien lo repuso en el mismo tick
+            if (location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
                 return;
             }
-
-            if (plantDisplay != null) {
-                plantDisplay.remove();
+            SlimefunItem still = BlockStorage.check(location);
+            if (still != null) {
+                // Forzar ruptura completa con drop de semilla (comportamiento esperado al quitar bloque de abajo)
+                unsafelyKillItem(location, still);
+                return;
             }
-            if (cropDisplay != null) {
-                cropDisplay.remove();
+            // Limpieza de ghosts huérfanos donde BlockStorage ya fue borrado pero quedan displays
+            if (finalPlantDisplay != null) {
+                finalPlantDisplay.remove();
             }
-            if (BlockStorage.check(location) == null) {
+            if (finalCropDisplay != null) {
+                finalCropDisplay.remove();
+            }
+            if (finalBushDisplay != null) {
+                finalBushDisplay.remove();
+            }
+            if (BlockStorage.hasBlockInfo(location.getBlock())) {
                 BlockStorage.clearBlockInfo(location);
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onSupportBreak(@Nonnull org.bukkit.event.block.BlockBreakEvent event) {
+        Block broken = event.getBlock();
+        // El bloque de arriba puede ser planta (AIR-display o PLAYER_HEAD) o bush
+        Block above = broken.getRelative(BlockFace.UP);
+        SlimefunItem aboveItem = BlockStorage.check(above);
+        if (aboveItem == null) {
+            return;
+        }
+        // Para PLAYER_HEAD Slimefun ya dispara SENSITIVE_MATERIALS, pero para AIR-display no.
+        // Forzamos limpieza en ambos casos para asegurar drop de semilla y borrado de displays.
+        Location loc = above.getLocation();
+        Bukkit.getScheduler().runTask(Cultivation.getInstance(), () -> {
+            SlimefunItem still = BlockStorage.check(loc);
+            if (still != null) {
+                unsafelyKillItem(loc, still);
             }
         });
     }

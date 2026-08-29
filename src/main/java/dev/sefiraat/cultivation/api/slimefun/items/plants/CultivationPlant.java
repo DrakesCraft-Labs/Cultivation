@@ -112,6 +112,33 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     }
 
     @Override
+    public void onTickAlways(Location location, SlimefunItem flora, Config data) {
+        // Auto-reparación de ghosts: plantas en stage AIR sin Interaction (pre-62f791e) quedaban irrompibles.
+        try {
+            String stageStr = BlockStorage.getLocationInfo(location, Keys.FLORA_GROWTH_STAGE);
+            if (stageStr != null) {
+                int stage = Integer.parseInt(stageStr);
+                if (stage >= 1) {
+                    boolean hasDisplay = hasDisplayPlant(location);
+                    var group = getPlantDisplayGroup(location);
+                    if (!hasDisplay || group == null) {
+                        addDisplayPlant(location);
+                        if (stage >= getMaxGrowthStages() && flora instanceof HarvestablePlant hp) {
+                            ItemStack itemStack = hp.getRandomItemWithDropModifier(location);
+                            if (itemStack != null) {
+                                addItemsToDisplay(location, itemStack.clone());
+                            }
+                        }
+                    } else {
+                        group.getParentDisplay().setResponsive(true);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
     protected void tryBreed(@Nonnull Block motherBlock, @Nonnull CultivationPlant plant) {
         double breedChance = ThreadLocalRandom.current().nextDouble();
         if (breedChance > getDefaultGrowthRate()) {

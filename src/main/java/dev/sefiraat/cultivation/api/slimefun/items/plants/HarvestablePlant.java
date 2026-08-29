@@ -87,13 +87,16 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
         if (blockOptional.isEmpty() || harvestItems.isEmpty()) {
             return;
         }
+        // Solo HarvestingTool puede cosechar (pedido). Mano vacía ya no cosecha.
         SlimefunItem heldItem = event.getSlimefunItem().orElse(null);
-        if (heldItem instanceof PlantAnalyser) {
+        if (!(heldItem instanceof HarvestingTool)) {
             return;
         }
         Block block = blockOptional.get();
         if (this.isMature(block)) {
             harvest(block);
+            // Evitar que Slimefun abra el BlockMenu dummy tras cosechar
+            event.cancel();
         }
     }
 

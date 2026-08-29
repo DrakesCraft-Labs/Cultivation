@@ -49,6 +49,20 @@ public abstract class CultivationBush extends CultivationFloraItem<CultivationBu
     }
 
     @Override
+    public void onTickAlways(org.bukkit.Location location, com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem flora, me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+        try {
+            boolean hasDisplay = hasDisplayBush(location);
+            var group = getBushDisplayGroup(location);
+            if (!hasDisplay || group == null) {
+                addDisplayBush(location);
+            } else {
+                group.getParentDisplay().setResponsive(true);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
     public int getMaxGrowthStages() {
         return 3;
     }
