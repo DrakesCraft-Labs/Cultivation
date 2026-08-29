@@ -4,9 +4,11 @@ import dev.sefiraat.cultivation.Cultivation;
 import dev.sefiraat.cultivation.api.slimefun.groups.CultivationGroups;
 import dev.sefiraat.cultivation.implementation.slimefun.CultivationStacks;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.CropSticks;
+import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.PlantAnalyser;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.RecipeUnlock;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.SeedPack;
+import dev.sefiraat.cultivation.implementation.slimefun.tools.TrimmingTool;
 import com.github.drakescraft_labs.slimefun4.api.recipes.RecipeType;
 import com.github.drakescraft_labs.slimefun4.implementation.SlimefunItems;
 import org.bukkit.Material;
@@ -31,6 +33,33 @@ public final class Tools {
                 new ItemStack(Material.STICK), new ItemStack(Material.STICK), null,
                 null, null, null
             }
+        ).register(addon);
+
+        // These tools are the only supported interaction path for harvesting
+        // plants and taking bush cuttings. Keep them registered alongside the
+        // rest of the tool catalogue so their Slimefun IDs and recipes exist.
+        new HarvestingTool(
+            CultivationGroups.TOOLS,
+            CultivationStacks.HARVESTING_TOOL_SIMPLE,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            new ItemStack[]{
+                CultivationStacks.MYSTICAL_LOG, CultivationStacks.MYSTICAL_LOG, CultivationStacks.MYSTICAL_LOG,
+                CultivationStacks.MYSTICAL_LOG, null, CultivationStacks.MYSTICAL_LOG,
+                null, CultivationStacks.MYSTICAL_LOG, null
+            },
+            50
+        ).register(addon);
+
+        new TrimmingTool(
+            CultivationGroups.TOOLS,
+            CultivationStacks.TRIMMING_TOOL_SIMPLE,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            new ItemStack[]{
+                null, CultivationStacks.MYSTICAL_LOG, new ItemStack(Material.IRON_INGOT),
+                CultivationStacks.MYSTICAL_LOG, null, null,
+                null, CultivationStacks.MYSTICAL_LOG, new ItemStack(Material.IRON_INGOT)
+            },
+            50
         ).register(addon);
 
         new PlantAnalyser(

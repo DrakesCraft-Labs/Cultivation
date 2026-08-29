@@ -18,6 +18,23 @@ public final class CultivationStacks {
         throw new IllegalStateException("Utility class");
     }
 
+    // region Crafting Materials
+
+    /**
+     * Core material for the harvesting and trimming tools. The historical ID
+     * is intentionally preserved so existing items remain compatible.
+     */
+    public static final SlimefunItemStack MYSTICAL_LOG = Theme.themedSlimefunItemStack(
+        "CLT_MYSTICAL_WOOD",
+        Material.OAK_LOG,
+        CultivationThemes.TOOL,
+        "Mystical Log",
+        "This seemingly simple log is brimming",
+        "with an unknown power."
+    );
+
+    // endregion
+
     // region Trees
 
     public static final SlimefunItemStack TREE_BANANA = Theme.themedSlimefunItemStack(

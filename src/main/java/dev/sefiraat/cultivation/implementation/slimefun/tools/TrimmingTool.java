@@ -36,12 +36,14 @@ public class TrimmingTool extends RefillableUseItem {
             SlimefunItem item = BlockStorage.check(block);
 
             if (item instanceof CultivationBush trimmable && trimmable.isMature(block)) {
+                // This tool owns the successful interaction. Cancelling avoids
+                // a second flora handler processing the same right-click.
+                playerRightClickEvent.cancel();
                 ItemStack trimmingResult = trimmable.getTrimmingResult();
                 trimmable.updateGrowthStage(block.getLocation(), 1);
                 block.getWorld().dropItem(block.getLocation(), trimmingResult.clone());
+                damageItem(playerRightClickEvent.getPlayer(), playerRightClickEvent.getItem());
             }
-
-            damageItem(playerRightClickEvent.getPlayer(), playerRightClickEvent.getItem());
         };
     }
 }

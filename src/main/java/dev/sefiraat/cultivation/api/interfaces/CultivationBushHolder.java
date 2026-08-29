@@ -39,6 +39,8 @@ public interface CultivationBushHolder {
 
     default void addDisplayBush(@Nonnull Location location) {
         DisplayGroup displayGroup = DisplayGroupGenerators.generateBush(location.clone().add(0.5, 0, 0.5));
+        // A responsive interaction is required for left-click removal.
+        displayGroup.getParentDisplay().setResponsive(true);
         BlockStorage.addBlockInfo(location, BUSH, "true");
         BlockStorage.addBlockInfo(location, GROUP_PARENT, displayGroup.getParentUUID().toString());
     }
@@ -99,7 +101,12 @@ public interface CultivationBushHolder {
         if (uuid == null) {
             return null;
         }
-        return DisplayGroup.fromUUID(uuid);
+        DisplayGroup displayGroup = DisplayGroup.fromUUID(uuid);
+        if (displayGroup != null) {
+            // Repair legacy displays lazily without forcing a world-wide scan.
+            displayGroup.getParentDisplay().setResponsive(true);
+        }
+        return displayGroup;
     }
 
     default void removeBushDisplayGroup(@Nonnull Location location) {

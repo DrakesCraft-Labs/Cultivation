@@ -39,6 +39,10 @@ public interface CultivationPlantHolder {
 
     default void addDisplayPlant(@Nonnull Location location) {
         DisplayGroup displayGroup = DisplayGroupGenerators.generatePlant(location.clone().add(0.5, 0, 0.5));
+        // Interaction entities are non-responsive by default on modern Paper.
+        // Without this flag players can see the plant but cannot attack it to
+        // trigger the synthetic BlockBreakEvent used for removal.
+        displayGroup.getParentDisplay().setResponsive(true);
         BlockStorage.addBlockInfo(location, PLANT, "true");
         BlockStorage.addBlockInfo(location, GROUP_PARENT, displayGroup.getParentUUID().toString());
     }
@@ -87,7 +91,12 @@ public interface CultivationPlantHolder {
         if (uuid == null) {
             return null;
         }
-        return DisplayGroup.fromUUID(uuid);
+        DisplayGroup displayGroup = DisplayGroup.fromUUID(uuid);
+        if (displayGroup != null) {
+            // Also repair displays created by older builds when they are read.
+            displayGroup.getParentDisplay().setResponsive(true);
+        }
+        return displayGroup;
     }
 
     default void removePlantDisplayGroup(@Nonnull Location location) {
