@@ -5,7 +5,6 @@ import dev.sefiraat.cultivation.api.datatypes.instances.FloraLevelProfile;
 import dev.sefiraat.cultivation.api.interfaces.CultivationHarvestable;
 import dev.sefiraat.cultivation.api.slimefun.plant.Growth;
 import dev.sefiraat.cultivation.api.slimefun.plant.PlantTheme;
-import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
 import dev.sefiraat.cultivation.implementation.slimefun.tools.PlantAnalyser;
 import dev.sefiraat.cultivation.implementation.utils.Keys;
 import dev.drake.sefilib.entity.display.DisplayGroup;
@@ -33,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This plant can be harvested by right-clicking with a {@link HarvestingTool}
+ * This plant can be harvested by right-clicking it
  * dropping the provided ItemStack into the world.
  * The plant then reverts to its first stage in its {@link PlantTheme}
  */
@@ -85,11 +84,6 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
         }
         Optional<Block> blockOptional = event.getClickedBlock();
         if (blockOptional.isEmpty() || harvestItems.isEmpty()) {
-            return;
-        }
-        // Solo HarvestingTool puede cosechar (pedido). Mano vacía ya no cosecha.
-        SlimefunItem heldItem = event.getSlimefunItem().orElse(null);
-        if (!(heldItem instanceof HarvestingTool)) {
             return;
         }
         Block block = blockOptional.get();

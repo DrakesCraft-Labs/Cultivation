@@ -6,7 +6,6 @@ import dev.sefiraat.cultivation.api.slimefun.items.bushes.CultivationBush;
 import dev.sefiraat.cultivation.api.slimefun.items.plants.CultivationPlant;
 import dev.drake.sefilib.entity.display.DisplayGroup;
 import dev.sefiraat.cultivation.api.slimefun.items.plants.HarvestablePlant;
-import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
 import dev.sefiraat.cultivation.implementation.utils.Keys;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
@@ -229,21 +228,8 @@ public class CustomPlacementListener implements Listener {
         SlimefunItem item = BlockStorage.check(loc);
         if (!(item instanceof HarvestablePlant plant)) return;
         if (!plant.isMature(loc.getBlock())) return;
-        ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-        SlimefunItem heldSf = SlimefunItem.getByItem(held);
-        if (!(heldSf instanceof HarvestingTool)) return;
         event.setCancelled(true);
         plant.harvest(loc.getBlock());
-        // Damage tool (LimitedUseItem)
-        if (heldSf instanceof HarvestingTool tool) {
-            try {
-                var m = tool.getClass().getSuperclass().getSuperclass().getDeclaredMethod("damageItem", Player.class, ItemStack.class);
-                m.setAccessible(true);
-                m.invoke(tool, event.getPlayer(), held);
-            } catch (Exception ignored) {
-                // fallback: no damage si falla reflection
-            }
-        }
         event.getPlayer().swingMainHand();
     }
 
