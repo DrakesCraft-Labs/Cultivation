@@ -50,6 +50,20 @@ import javax.annotation.Nullable;
  */
 public class CustomPlacementListener implements Listener {
 
+    private static final java.util.Set<String> PENDING_REMOVAL = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private static String locKey(Location loc) {
+        return loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ();
+    }
+
+    public static boolean tryAcquireRemoval(Location loc) {
+        return PENDING_REMOVAL.add(locKey(loc));
+    }
+
+    public static void releaseRemoval(Location loc) {
+        PENDING_REMOVAL.remove(locKey(loc));
+    }
+
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onBlockPlace(@Nonnull BlockPlaceEvent event) {
         SlimefunItem slimefunItem = SlimefunItem.getByItem(event.getItemInHand());
@@ -115,6 +129,10 @@ public class CustomPlacementListener implements Listener {
         if (!(slimefunItem instanceof CultivationPlant) && !(slimefunItem instanceof CultivationBush)) {
             return;
         }
+        // Solo AIR-display (stage>=1) necesita nuestro manejo; PLAYER_HEAD stage0 lo maneja Slimefun SENSITIVE_MATERIALS
+        if (block.getType() != Material.AIR) {
+            return;
+        }
         if (block.getRelative(BlockFace.DOWN).getType().isSolid()) {
             return;
         }
@@ -142,7 +160,6 @@ public class CustomPlacementListener implements Listener {
             }
             SlimefunItem still = BlockStorage.check(location);
             if (still != null) {
-                // Forzar ruptura completa con drop de semilla (comportamiento esperado al quitar bloque de abajo)
                 unsafelyKillItem(location, still);
                 return;
             }
@@ -165,14 +182,15 @@ public class CustomPlacementListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSupportBreak(@Nonnull org.bukkit.event.block.BlockBreakEvent event) {
         Block broken = event.getBlock();
-        // El bloque de arriba puede ser planta (AIR-display o PLAYER_HEAD) o bush
         Block above = broken.getRelative(BlockFace.UP);
+        // Solo AIR-display necesita nuestro manejo; PLAYER_HEAD stage0 lo maneja Slimefun via SENSITIVE_MATERIALS
+        if (above.getType() != Material.AIR) {
+            return;
+        }
         SlimefunItem aboveItem = BlockStorage.check(above);
         if (aboveItem == null) {
             return;
         }
-        // Para PLAYER_HEAD Slimefun ya dispara SENSITIVE_MATERIALS, pero para AIR-display no.
-        // Forzamos limpieza en ambos casos para asegurar drop de semilla y borrado de displays.
         Location loc = above.getLocation();
         Bukkit.getScheduler().runTask(Cultivation.getInstance(), () -> {
             SlimefunItem still = BlockStorage.check(loc);
@@ -241,12 +259,25 @@ public class CustomPlacementListener implements Listener {
         if (group == null) return;
         Location loc = group.getLocation().getBlock().getLocation();
         SlimefunItem item = BlockStorage.check(loc);
-        if (item == null) return;
+        if (item == null) {
+            // Ghost sin storage: forzar limpieza visual
+            group.remove();
+            event.setCancelled(true);
+            return;
+        }
         // Reenviar como BlockBreakEvent para que CultivationPlant.onBreak borre y dropee semilla
+        // Necesario para que maduras (stage 2 con drops colgando) también se puedan quitar con left-click
         org.bukkit.event.block.BlockBreakEvent breakEvent = new org.bukkit.event.block.BlockBreakEvent(loc.getBlock(), player);
         Bukkit.getPluginManager().callEvent(breakEvent);
-        if (!breakEvent.isCancelled()) {
-            event.setCancelled(true);
+        if (breakEvent.isCancelled()) return;
+        event.setCancelled(true);
+        // Si Slimefun no limpió (AIR-display no siempre es SENSITIVE), forzar borrado
+        SlimefunItem still = BlockStorage.check(loc);
+        if (still != null) {
+            unsafelyKillItem(loc, still);
+        } else if (group.getParentDisplay() != null && !group.getParentDisplay().isDead()) {
+            // Ya borrado por Slimefun pero asegurar que no quede ghost visual
+            try { group.remove(); } catch (Exception ignored) {}
         }
     }
 
@@ -259,30 +290,54 @@ public class CustomPlacementListener implements Listener {
         if (group == null) return;
         Location loc = group.getLocation().getBlock().getLocation();
         SlimefunItem item = BlockStorage.check(loc);
-        if (item == null) return;
+        if (item == null) {
+            group.remove();
+            event.setCancelled(true);
+            return;
+        }
         org.bukkit.event.block.BlockBreakEvent breakEvent = new org.bukkit.event.block.BlockBreakEvent(loc.getBlock(), player);
         Bukkit.getPluginManager().callEvent(breakEvent);
-        if (!breakEvent.isCancelled()) event.setCancelled(true);
+        if (breakEvent.isCancelled()) return;
+        event.setCancelled(true);
+        SlimefunItem still = BlockStorage.check(loc);
+        if (still != null) {
+            unsafelyKillItem(loc, still);
+        } else {
+            try { group.remove(); } catch (Exception ignored) {}
+        }
     }
 
     private void unsafelyKillItem(@Nonnull Location location, @Nullable SlimefunItem slimefunItem) {
-        if (slimefunItem instanceof CultivationPlant plant) {
-            // Drop en centro para evitar que quede dentro del bloque
-            Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
-            dropLoc.getWorld().dropItem(dropLoc, plant.getDroppedItemStack(location));
-            plant.removeCropped(location);
-            plant.removePlantDisplayGroup(location);
-            plant.removeLevelProfile(location);
-            plant.removeOwner(location);
-            BlockStorage.clearBlockInfo(location);
-            location.getBlock().setType(Material.AIR);
-        } else if (slimefunItem instanceof CultivationBush bush) {
-            Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
-            dropLoc.getWorld().dropItem(dropLoc, bush.getItem().clone());
-            bush.removeBushDisplayGroup(location);
-            bush.removeOwner(location);
-            BlockStorage.clearBlockInfo(location);
-            location.getBlock().setType(Material.AIR);
+        if (slimefunItem == null) return;
+        // Deduplicar: si ya se está borrando en otro handler/tick, no dropear de nuevo (evita 4x)
+        if (!tryAcquireRemoval(location)) return;
+        try {
+            // Re-validar dentro del lock - otro hilo puede haber limpiado entre el check y el acquire
+            SlimefunItem current = BlockStorage.check(location);
+            if (current == null || current != slimefunItem) {
+                // Si cambio de item o ya borrado, usar el current si aún es flora
+                slimefunItem = current;
+                if (slimefunItem == null) return;
+            }
+            if (slimefunItem instanceof CultivationPlant plant) {
+                Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+                dropLoc.getWorld().dropItem(dropLoc, plant.getDroppedItemStack(location));
+                plant.removeCropped(location);
+                plant.removePlantDisplayGroup(location);
+                plant.removeLevelProfile(location);
+                plant.removeOwner(location);
+                BlockStorage.clearBlockInfo(location);
+                location.getBlock().setType(Material.AIR);
+            } else if (slimefunItem instanceof CultivationBush bush) {
+                Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+                dropLoc.getWorld().dropItem(dropLoc, bush.getItem().clone());
+                bush.removeBushDisplayGroup(location);
+                bush.removeOwner(location);
+                BlockStorage.clearBlockInfo(location);
+                location.getBlock().setType(Material.AIR);
+            }
+        } finally {
+            releaseRemoval(location);
         }
     }
 

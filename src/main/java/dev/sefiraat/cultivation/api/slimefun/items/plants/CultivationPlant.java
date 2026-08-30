@@ -1,5 +1,6 @@
 package dev.sefiraat.cultivation.api.slimefun.items.plants;
 
+import dev.sefiraat.cultivation.Cultivation;
 import dev.sefiraat.cultivation.Registry;
 import dev.sefiraat.cultivation.api.datatypes.FloraLevelProfileDataType;
 import dev.sefiraat.cultivation.api.datatypes.instances.FloraLevelProfile;
@@ -113,6 +114,31 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
 
     @Override
     public void onTickAlways(Location location, SlimefunItem flora, Config data) {
+        // Soporte roto: solo AIR-display (stage>=1); stage0 PLAYER_HEAD lo maneja Slimefun SENSITIVE
+        try {
+            Location blockLoc = location.getBlock().getLocation();
+            if (blockLoc.getBlock().getType() != Material.AIR) return;
+            if (!blockLoc.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
+                if (!dev.sefiraat.cultivation.implementation.listeners.CustomPlacementListener.tryAcquireRemoval(blockLoc)) return;
+                Bukkit.getScheduler().runTask(Cultivation.getInstance(), () -> {
+                    try {
+                        if (BlockStorage.check(blockLoc) instanceof CultivationPlant still && !blockLoc.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
+                            Location loc = blockLoc;
+                            loc.getWorld().dropItem(loc.clone().add(0.5, 0.5, 0.5), getDroppedItemStack(loc));
+                            removeCropped(loc);
+                            removePlantDisplayGroup(loc);
+                            removeLevelProfile(loc);
+                            removeOwner(loc);
+                            BlockStorage.clearBlockInfo(loc);
+                            loc.getBlock().setType(Material.AIR);
+                        }
+                    } finally {
+                        dev.sefiraat.cultivation.implementation.listeners.CustomPlacementListener.releaseRemoval(blockLoc);
+                    }
+                });
+                return;
+            }
+        } catch (Exception ignored) {}
         // Auto-reparación de ghosts: plantas en stage AIR sin Interaction (pre-62f791e) quedaban irrompibles.
         try {
             String stageStr = BlockStorage.getLocationInfo(location, Keys.FLORA_GROWTH_STAGE);

@@ -1,5 +1,6 @@
 package dev.sefiraat.cultivation.api.slimefun.items.bushes;
 
+import dev.sefiraat.cultivation.Cultivation;
 import dev.sefiraat.cultivation.Registry;
 import dev.sefiraat.cultivation.api.interfaces.CultivationBushHolder;
 import dev.sefiraat.cultivation.api.interfaces.CultivationFlora;
@@ -13,6 +14,9 @@ import dev.drake.sefilib.entity.display.DisplayInteractable;
 import com.github.drakescraft_labs.slimefun4.api.SlimefunAddon;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItemStack;
 import com.github.drakescraft_labs.slimefun4.core.handlers.BlockBreakHandler;
+import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +54,27 @@ public abstract class CultivationBush extends CultivationFloraItem<CultivationBu
 
     @Override
     public void onTickAlways(org.bukkit.Location location, com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem flora, me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config data) {
+        try {
+            if (!location.getBlock().getRelative(org.bukkit.block.BlockFace.DOWN).getType().isSolid()) {
+                // Usar deduplicación global para no dropear 4x cuando onPlantPhysics/onSupportBreak también disparan
+                if (!dev.sefiraat.cultivation.implementation.listeners.CustomPlacementListener.tryAcquireRemoval(location)) return;
+                Bukkit.getScheduler().runTask(dev.sefiraat.cultivation.Cultivation.getInstance(), () -> {
+                    try {
+                        if (BlockStorage.check(location) instanceof CultivationBush still && !location.getBlock().getRelative(org.bukkit.block.BlockFace.DOWN).getType().isSolid()) {
+                            Location loc = location;
+                            loc.getWorld().dropItem(loc.clone().add(0.5, 0.5, 0.5), still.getItem().clone());
+                            still.removeBushDisplayGroup(loc);
+                            still.removeOwner(loc);
+                            BlockStorage.clearBlockInfo(loc);
+                            loc.getBlock().setType(org.bukkit.Material.AIR);
+                        }
+                    } finally {
+                        dev.sefiraat.cultivation.implementation.listeners.CustomPlacementListener.releaseRemoval(location);
+                    }
+                });
+                return;
+            }
+        } catch (Exception ignored) {}
         try {
             boolean hasDisplay = hasDisplayBush(location);
             var group = getBushDisplayGroup(location);
