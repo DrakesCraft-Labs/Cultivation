@@ -35,6 +35,19 @@ Todo el contenido se investiga y fabrica directamente desde la **Guía de Slimef
 
 ---
 
+## 🌾 Flujo de cultivo en DrakesCraft
+
+1. Coloca la semilla sobre uno de los suelos que acepta esa especie.
+2. Usa los *Crop Sticks* para preparar la planta. Para cruces, prepara también el espacio intermedio y las plantas progenitoras según la receta de la guía.
+3. Espera a que la planta llegue a su etapa madura y muestre su producción.
+4. Haz **clic derecho directamente sobre la planta madura** para cosechar. No necesitas azada, tijeras ni una herramienta especial.
+5. La cosecha cae al mundo y la misma planta vuelve a su etapa de crecimiento; no necesitas replantarla.
+6. Para retirar definitivamente la planta, haz **clic izquierdo** sobre ella. Recuperarás su semilla con sus datos genéticos.
+
+Si una planta madura no entrega su producción o no puede retirarse, no la rompas mediante pistones, agua o explosiones: reporta mundo, coordenadas y especie para conservar la evidencia del bloque.
+
+---
+
 ## 🌱 Mecánicas y Características Principales
 
 ### 🔬 1. Genética Vegetal y Cruces Botánicos
