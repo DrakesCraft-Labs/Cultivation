@@ -5,6 +5,9 @@ import dev.sefiraat.cultivation.api.interfaces.CustomPlacementBlock;
 import dev.sefiraat.cultivation.api.slimefun.items.bushes.CultivationBush;
 import dev.sefiraat.cultivation.api.slimefun.items.plants.CultivationPlant;
 import dev.drake.sefilib.entity.display.DisplayGroup;
+import dev.sefiraat.cultivation.api.slimefun.items.plants.HarvestablePlant;
+import dev.sefiraat.cultivation.implementation.slimefun.tools.HarvestingTool;
+import dev.sefiraat.cultivation.implementation.utils.Keys;
 import com.github.drakescraft_labs.slimefun4.api.items.SlimefunItem;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
 import org.bukkit.Bukkit;
@@ -14,6 +17,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Directional;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Interaction;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -26,7 +32,10 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -185,9 +194,82 @@ public class CustomPlacementListener implements Listener {
         }
     }
 
+    /**
+     * Cosecha via click directo a Displays (los 3 ItemDisplay colgando no son Interaction,
+     * por lo que DisplayGroupManager no los captura). Resuelve "tool no cosecha".
+     */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onDisplayInteract(@Nonnull PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof Display display)) return;
+        String parentUuid = display.getPersistentDataContainer().get(Keys.DISPLAY_ENTITY, PersistentDataType.STRING);
+        if (parentUuid == null) return;
+        java.util.UUID uuid;
+        try { uuid = java.util.UUID.fromString(parentUuid); } catch (IllegalArgumentException e) { return; }
+        DisplayGroup group = DisplayGroup.fromUUID(uuid);
+        if (group == null) return;
+        Location loc = group.getLocation().getBlock().getLocation();
+        SlimefunItem item = BlockStorage.check(loc);
+        if (!(item instanceof HarvestablePlant plant)) return;
+        if (!plant.isMature(loc.getBlock())) return;
+        ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
+        SlimefunItem heldSf = SlimefunItem.getByItem(held);
+        if (!(heldSf instanceof HarvestingTool)) return;
+        event.setCancelled(true);
+        plant.harvest(loc.getBlock());
+        // Damage tool (LimitedUseItem)
+        if (heldSf instanceof HarvestingTool tool) {
+            try {
+                var m = tool.getClass().getSuperclass().getSuperclass().getDeclaredMethod("damageItem", Player.class, ItemStack.class);
+                m.setAccessible(true);
+                m.invoke(tool, event.getPlayer(), held);
+            } catch (Exception ignored) {
+                // fallback: no damage si falla reflection
+            }
+        }
+        event.getPlayer().swingMainHand();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onDisplayAttack(@Nonnull EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Display display)) return;
+        if (!(event.getDamager() instanceof Player player)) return;
+        String parentUuid = display.getPersistentDataContainer().get(Keys.DISPLAY_ENTITY, PersistentDataType.STRING);
+        if (parentUuid == null) return;
+        java.util.UUID uuid;
+        try { uuid = java.util.UUID.fromString(parentUuid); } catch (IllegalArgumentException e) { return; }
+        DisplayGroup group = DisplayGroup.fromUUID(uuid);
+        if (group == null) return;
+        Location loc = group.getLocation().getBlock().getLocation();
+        SlimefunItem item = BlockStorage.check(loc);
+        if (item == null) return;
+        // Reenviar como BlockBreakEvent para que CultivationPlant.onBreak borre y dropee semilla
+        org.bukkit.event.block.BlockBreakEvent breakEvent = new org.bukkit.event.block.BlockBreakEvent(loc.getBlock(), player);
+        Bukkit.getPluginManager().callEvent(breakEvent);
+        if (!breakEvent.isCancelled()) {
+            event.setCancelled(true);
+        }
+    }
+
+    // También cubrir Interaction por si el golpe va al parent en vez de al Display hijo
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onInteractionAttack(@Nonnull EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Interaction interaction)) return;
+        if (!(event.getDamager() instanceof Player player)) return;
+        DisplayGroup group = DisplayGroup.fromInteraction(interaction);
+        if (group == null) return;
+        Location loc = group.getLocation().getBlock().getLocation();
+        SlimefunItem item = BlockStorage.check(loc);
+        if (item == null) return;
+        org.bukkit.event.block.BlockBreakEvent breakEvent = new org.bukkit.event.block.BlockBreakEvent(loc.getBlock(), player);
+        Bukkit.getPluginManager().callEvent(breakEvent);
+        if (!breakEvent.isCancelled()) event.setCancelled(true);
+    }
+
     private void unsafelyKillItem(@Nonnull Location location, @Nullable SlimefunItem slimefunItem) {
         if (slimefunItem instanceof CultivationPlant plant) {
-            location.getWorld().dropItem(location, plant.getDroppedItemStack(location));
+            // Drop en centro para evitar que quede dentro del bloque
+            Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+            dropLoc.getWorld().dropItem(dropLoc, plant.getDroppedItemStack(location));
             plant.removeCropped(location);
             plant.removePlantDisplayGroup(location);
             plant.removeLevelProfile(location);
@@ -195,10 +277,12 @@ public class CustomPlacementListener implements Listener {
             BlockStorage.clearBlockInfo(location);
             location.getBlock().setType(Material.AIR);
         } else if (slimefunItem instanceof CultivationBush bush) {
-            location.getWorld().dropItem(location, bush.getItem().clone());
+            Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+            dropLoc.getWorld().dropItem(dropLoc, bush.getItem().clone());
             bush.removeBushDisplayGroup(location);
             bush.removeOwner(location);
             BlockStorage.clearBlockInfo(location);
+            location.getBlock().setType(Material.AIR);
         }
     }
 
