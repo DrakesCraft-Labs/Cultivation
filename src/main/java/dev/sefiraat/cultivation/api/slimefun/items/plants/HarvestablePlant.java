@@ -18,6 +18,7 @@ import com.github.drakescraft_labs.slimefun4.api.items.settings.IntRangeSetting;
 import com.github.drakescraft_labs.slimefun4.legacy.api.BlockStorage;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -98,14 +99,17 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
         if (this.isMature(block)) {
             updateGrowthStage(block, 1);
             ItemStack itemStack = nextDrop.remove(block.getLocation());
+            Location dropLoc = block.getLocation().clone().add(0.5, 0.5, 0.5);
             if (itemStack == null) {
                 ItemStack drop = harvestItems.getRandom();
                 if (drop != null) {
-                    block.getWorld().dropItem(block.getLocation(), drop.clone());
+                    block.getWorld().dropItem(dropLoc, drop.clone());
                 }
             } else {
-                block.getWorld().dropItem(block.getLocation(), itemStack);
+                block.getWorld().dropItem(dropLoc, itemStack);
             }
+            block.getWorld().spawnParticle(Particle.WAX_OFF, dropLoc, 5, 0.2, 0.2, 0.2);
+            block.getWorld().playSound(dropLoc, org.bukkit.Sound.BLOCK_SWEET_BERRY_BUSH_PICK_BERRIES, 1f, 1f);
         }
     }
 

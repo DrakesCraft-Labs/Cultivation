@@ -59,6 +59,15 @@ public class CropSticks extends SlimefunItem implements NotPlaceable {
                 if (player.getGameMode() != GameMode.CREATIVE) {
                     heldItemStack.setAmount(heldItemStack.getAmount() - 1);
                 }
+            } else {
+                Block blockAbove = block.getRelative(org.bukkit.block.BlockFace.UP);
+                SlimefunItem itemAbove = BlockStorage.check(blockAbove);
+                if (itemAbove instanceof CultivationCroppable croppableAbove && croppableAbove.incrementCrop(blockAbove.getLocation())) {
+                    player.swingMainHand();
+                    if (player.getGameMode() != GameMode.CREATIVE) {
+                        heldItemStack.setAmount(heldItemStack.getAmount() - 1);
+                    }
+                }
             }
         };
     }

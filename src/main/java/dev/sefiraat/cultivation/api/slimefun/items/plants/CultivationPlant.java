@@ -42,6 +42,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.entity.Player;
+import dev.sefiraat.cultivation.implementation.slimefun.CultivationStacks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -213,9 +214,21 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     public void onBreak(@NotNull BlockBreakEvent event) {
         Location location = event.getBlock().getLocation();
         ItemStack itemToDrop = getDroppedItemStack(location);
+        boolean wasCropped = isCropped(location);
+        boolean wasCrossCropped = isCrossCropped(location);
         removeCropped(location);
         removePlant(location);
-        location.getWorld().dropItem(location.clone().add(0.5, 0.5, 0.5), itemToDrop);
+        Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+        if (itemToDrop != null && itemToDrop.getType() != Material.AIR) {
+            location.getWorld().dropItem(dropLoc, itemToDrop);
+        }
+        if (wasCrossCropped) {
+            ItemStack sticks = CultivationStacks.CROP_STICKS.clone();
+            sticks.setAmount(2);
+            location.getWorld().dropItem(dropLoc, sticks);
+        } else if (wasCropped) {
+            location.getWorld().dropItem(dropLoc, CultivationStacks.CROP_STICKS.clone());
+        }
         removeLevelProfile(location);
         removeOwner(location);
         event.setDropItems(false);
@@ -228,9 +241,8 @@ public abstract class CultivationPlant extends CultivationFloraItem<CultivationP
     @Override
     @ParametersAreNonnullByDefault
     protected boolean canGrow(Block block, CultivationPlant flora, Config data, Location location, int growthStage) {
-        // Cultivation's progression requires the first Crop Sticks application.
-        // Valid soil controls placement, but must never bypass that requirement.
-        return isCropped(data);
+        Block blockBelow = block.getRelative(BlockFace.DOWN);
+        return getPlacements().contains(blockBelow.getType()) || isCropped(data);
     }
 
     @Override
