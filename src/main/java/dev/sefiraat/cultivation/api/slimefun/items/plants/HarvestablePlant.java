@@ -27,10 +27,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This plant can be harvested by right-clicking it
@@ -41,7 +41,7 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
 
     private static final String KEY_GROWTH_RATE = "growth-rate";
     private final RandomizedSet<ItemStack> harvestItems = new RandomizedSet<>();
-    private final Map<Location, ItemStack> nextDrop = new HashMap<>();
+    private final Map<Location, ItemStack> nextDrop = new ConcurrentHashMap<>();
 
     @ParametersAreNonnullByDefault
     public HarvestablePlant(SlimefunItemStack item, Growth growth) {
@@ -93,6 +93,21 @@ public class HarvestablePlant extends CultivationPlant implements CultivationHar
             // Evitar que Slimefun abra el BlockMenu dummy tras cosechar
             event.cancel();
         }
+    }
+
+    /**
+     * Olvida el drop precalculado de esta posicion. Sin esto el mapa crece sin
+     * limite con cada planta rota y una planta nueva colocada en la misma
+     * posicion heredaria el drop de la anterior.
+     */
+    public void forgetNextDrop(@Nonnull Location location) {
+        nextDrop.remove(location);
+    }
+
+    @Override
+    public void onBreak(@NotNull org.bukkit.event.block.BlockBreakEvent event) {
+        forgetNextDrop(event.getBlock().getLocation());
+        super.onBreak(event);
     }
 
     public void harvest(@Nonnull Block block) {

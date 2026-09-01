@@ -239,6 +239,15 @@ public class CustomPlacementListener implements Listener {
         if (item == null) return;
 
         Player player = event.getPlayer();
+
+        // El clic sobre el Display/Interaction no pasa por Slimefun, asi que la
+        // proteccion de la region hay que consultarla aqui igual que en la rotura.
+        if (Slimefun.getProtectionManager() != null
+                && !Slimefun.getProtectionManager().hasPermission(player, loc, com.github.drakescraft_labs.slimefun4.libraries.dough.protection.Interaction.INTERACT_BLOCK)) {
+            event.setCancelled(true);
+            return;
+        }
+
         ItemStack held = player.getInventory().getItemInMainHand();
         SlimefunItem sfHeld = SlimefunItem.getByItem(held);
 
@@ -330,6 +339,9 @@ public class CustomPlacementListener implements Listener {
                     dropLoc.getWorld().dropItem(dropLoc, sticks);
                 } else if (wasCropped) {
                     dropLoc.getWorld().dropItem(dropLoc, CultivationStacks.CROP_STICKS.clone());
+                }
+                if (plant instanceof HarvestablePlant harvestable) {
+                    harvestable.forgetNextDrop(location);
                 }
                 plant.removeCropped(location);
                 plant.removePlantDisplayGroup(location);

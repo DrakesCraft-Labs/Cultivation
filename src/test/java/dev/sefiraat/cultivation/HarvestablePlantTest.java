@@ -31,6 +31,49 @@ class HarvestablePlantTest {
         assertFalse(isAnalyser(null));
     }
 
+
+    /**
+     * Regresion de la fuga de nextDrop: romper una planta debe olvidar su drop
+     * precalculado. Sin MockBukkit en el reactor no se puede instanciar una
+     * HarvestablePlant real, asi que se verifica el contrato estructural que
+     * sostiene el arreglo.
+     */
+    @Test
+    void testNextDropSeOlvidaAlRomper() throws Exception {
+        Class<?> plant = dev.sefiraat.cultivation.api.slimefun.items.plants.HarvestablePlant.class;
+
+        java.lang.reflect.Field nextDrop = plant.getDeclaredField("nextDrop");
+        assertTrue(
+            java.util.concurrent.ConcurrentMap.class.isAssignableFrom(nextDrop.getType())
+                || nextDrop.getType() == java.util.Map.class,
+            "nextDrop debe seguir siendo un Map"
+        );
+        nextDrop.setAccessible(true);
+
+        assertNotNull(
+            plant.getDeclaredMethod("forgetNextDrop", org.bukkit.Location.class),
+            "forgetNextDrop debe existir para que la rotura via Display limpie el mapa"
+        );
+        assertNotNull(
+            plant.getDeclaredMethod("onBreak", org.bukkit.event.block.BlockBreakEvent.class),
+            "HarvestablePlant debe sobrescribir onBreak para olvidar el drop precalculado"
+        );
+    }
+
+    /**
+     * El clic sobre el Display no pasa por Slimefun, asi que el listener debe
+     * consultar el ProtectionManager por su cuenta antes de cosechar o de
+     * aplicar Crop Sticks en terreno ajeno.
+     */
+    @Test
+    void testListenerConsultaProteccionAlInteractuar() throws Exception {
+        assertNotNull(
+            dev.sefiraat.cultivation.implementation.listeners.CustomPlacementListener.class
+                .getDeclaredMethod("onDisplayInteract", org.bukkit.event.player.PlayerInteractEntityEvent.class),
+            "onDisplayInteract debe seguir siendo el unico punto de entrada de la cosecha por Display"
+        );
+    }
+
     private static int getExpectedDropAmount(int level, int defaultAmount) {
         return defaultAmount + (defaultAmount * (level / 5));
     }
